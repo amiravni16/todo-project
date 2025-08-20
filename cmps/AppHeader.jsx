@@ -3,12 +3,13 @@ const { useNavigate } = ReactRouter
 
 import { UserMsg } from "./UserMsg.jsx"
 import { LoginSignup } from './LoginSignup.jsx'
-import { useStore } from '../services/useStore.js'
+import { logout } from '../store/actions/user.actions.js'
 
+const { useSelector } = ReactRedux
 
 export function AppHeader() {
     const navigate = useNavigate()
-    const { user, logout, setUser } = useStore()
+    const user = useSelector(storeState => storeState.user)
     
     function onLogout() {
         logout()
@@ -16,7 +17,7 @@ export function AppHeader() {
     }
 
     function onSetUser(user) {
-        setUser(user)
+        // This will be handled by the LoginSignup component
         navigate('/')
     }
     return (

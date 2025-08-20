@@ -1,11 +1,11 @@
 const { useEffect, useState } = React
 import {Chart} from '../cmps/Chart.jsx'
-import { useStore } from '../services/useStore.js'
 import { todoService } from '../services/todo.service.js'
+const { useSelector } = ReactRedux
 
 export function Dashboard() {
 
-    const { todos } = useStore()
+    const todos = useSelector(storeState => storeState.todos)
     const [importanceStats, setImportanceStats] = useState([])
 
     useEffect(()=>{

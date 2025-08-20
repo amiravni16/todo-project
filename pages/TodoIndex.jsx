@@ -1,23 +1,18 @@
 import { TodoFilter } from "../cmps/TodoFilter.jsx"
 import { TodoList } from "../cmps/TodoList.jsx"
 import { DataTable } from "../cmps/data-table/DataTable.jsx"
-import { useStore } from "../services/useStore.js"
+import { loadTodos, removeTodo, saveTodo, setFilterBy } from '../store/actions/todo.actions.js'
 import { todoService } from "../services/todo.service.js"
 
-const { useEffect } = React
+const { useEffect, useState } = React
 const { Link, useSearchParams } = ReactRouterDOM
+const { useSelector } = ReactRedux
 
 export function TodoIndex() {
-    // Use the store instead of local state
-    const { 
-        todos, 
-        isLoading, 
-        filterBy, 
-        loadTodos, 
-        removeTodo, 
-        toggleTodo, 
-        setFilter 
-    } = useStore()
+    // Use Redux store
+    const todos = useSelector((storeState) => storeState.todos)
+    const isLoading = useSelector(storeState => storeState.isLoading)
+    const filterBy = useSelector(storeState => storeState.filterBy)
 
     // Special hook for accessing search-params:
     const [searchParams, setSearchParams] = useSearchParams()
@@ -26,7 +21,7 @@ export function TodoIndex() {
         // Get initial filter from URL params
         const defaultFilter = todoService.getFilterFromSearchParams(searchParams)
         if (defaultFilter.txt !== filterBy.txt || defaultFilter.importance !== filterBy.importance) {
-            setFilter(defaultFilter)
+            setFilterBy(defaultFilter)
         }
     }, [])
 
@@ -40,11 +35,12 @@ export function TodoIndex() {
     }
 
     function onToggleTodo(todo) {
-        toggleTodo(todo)
+        const todoToSave = { ...todo, isDone: !todo.isDone }
+        saveTodo(todoToSave)
     }
 
     function onSetFilterBy(newFilterBy) {
-        setFilter(newFilterBy)
+        setFilterBy(newFilterBy)
     }
 
     if (isLoading && !todos.length) return <div>Loading...</div>

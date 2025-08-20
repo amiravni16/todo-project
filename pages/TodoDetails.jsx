@@ -1,13 +1,13 @@
 import { todoService } from "../services/todo.service.js"
-import { useStore } from "../services/useStore.js"
 
 const { useState, useEffect } = React
 const { useParams, useNavigate, Link } = ReactRouterDOM
+const { useSelector } = ReactRedux
 
 export function TodoDetails() {
 
     const [todo, setTodo] = useState(null)
-    const { isLoading } = useStore()
+    const isLoading = useSelector(storeState => storeState.isLoading)
     const params = useParams()
     const navigate = useNavigate()
 

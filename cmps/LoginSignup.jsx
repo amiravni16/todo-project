@@ -1,5 +1,5 @@
 import { userService } from '../services/user.service.js'
-import { useStore } from '../services/useStore.js'
+import { login, signup } from '../store/actions/user.actions.js'
 
 const { useState } = React
 
@@ -7,7 +7,6 @@ export function LoginSignup({ onSetUser }) {
 
     const [isSignup, setIsSignUp] = useState(false)
     const [credentials, setCredentials] = useState(userService.getEmptyCredentials())
-    const { login: storeLogin, signup: storeSignup } = useStore()
 
     function handleChange({ target }) {
         const { name: field, value } = target
@@ -20,21 +19,21 @@ export function LoginSignup({ onSetUser }) {
     }
 
     function onLogin(credentials) {
-        isSignup ? signup(credentials) : login(credentials)
+        isSignup ? handleSignup(credentials) : handleLogin(credentials)
     }
 
-    async function login(credentials) {
+    async function handleLogin(credentials) {
         try {
-            const user = await storeLogin(credentials)
+            const user = await login(credentials)
             onSetUser(user)
         } catch (err) {
             console.error('Login failed:', err)
         }
     }
 
-    async function signup(credentials) {
+    async function handleSignup(credentials) {
         try {
-            const user = await storeSignup(credentials)
+            const user = await signup(credentials)
             onSetUser(user)
         } catch (err) {
             console.error('Signup failed:', err)
