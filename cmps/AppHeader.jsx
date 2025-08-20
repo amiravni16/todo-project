@@ -1,25 +1,18 @@
-const { useState } = React
 const { Link, NavLink } = ReactRouterDOM
 const { useNavigate } = ReactRouter
 
-import { userService } from '../services/user.service.js'
 import { UserMsg } from "./UserMsg.jsx"
 import { LoginSignup } from './LoginSignup.jsx'
-import { showErrorMsg } from '../services/event-bus.service.js'
+import { useStore } from '../services/useStore.js'
 
 
 export function AppHeader() {
     const navigate = useNavigate()
-    const [user, setUser] = useState(userService.getLoggedinUser())
+    const { user, logout, setUser } = useStore()
     
     function onLogout() {
-        userService.logout()
-            .then(() => {
-                onSetUser(null)
-            })
-            .catch((err) => {
-                showErrorMsg('OOPs try again')
-            })
+        logout()
+        navigate('/')
     }
 
     function onSetUser(user) {

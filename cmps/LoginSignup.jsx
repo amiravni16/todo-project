@@ -1,5 +1,5 @@
-import { showErrorMsg, showSuccessMsg } from '../services/event-bus.service.js'
 import { userService } from '../services/user.service.js'
+import { useStore } from '../services/useStore.js'
 
 const { useState } = React
 
@@ -7,6 +7,7 @@ export function LoginSignup({ onSetUser }) {
 
     const [isSignup, setIsSignUp] = useState(false)
     const [credentials, setCredentials] = useState(userService.getEmptyCredentials())
+    const { login: storeLogin, signup: storeSignup } = useStore()
 
     function handleChange({ target }) {
         const { name: field, value } = target
@@ -18,23 +19,26 @@ export function LoginSignup({ onSetUser }) {
         onLogin(credentials)
     }
 
-
     function onLogin(credentials) {
         isSignup ? signup(credentials) : login(credentials)
     }
 
-    function login(credentials) {
-        userService.login(credentials)
-            .then(onSetUser)
-            .then(() => { showSuccessMsg('Logged in successfully') })
-            .catch((err) => { showErrorMsg('Oops try again') })
+    async function login(credentials) {
+        try {
+            const user = await storeLogin(credentials)
+            onSetUser(user)
+        } catch (err) {
+            console.error('Login failed:', err)
+        }
     }
 
-    function signup(credentials) {
-        userService.signup(credentials)
-            .then(onSetUser)
-            .then(() => { showSuccessMsg('Signed in successfully') })
-            .catch((err) => { showErrorMsg('Oops try again') })
+    async function signup(credentials) {
+        try {
+            const user = await storeSignup(credentials)
+            onSetUser(user)
+        } catch (err) {
+            console.error('Signup failed:', err)
+        }
     }
 
     return (

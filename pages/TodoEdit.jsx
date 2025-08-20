@@ -1,5 +1,5 @@
 import { todoService } from "../services/todo.service.js"
-import { showErrorMsg, showSuccessMsg } from "../services/event-bus.service.js"
+import { useStore } from "../services/useStore.js"
 
 const { useState, useEffect } = React
 const { useNavigate, useParams } = ReactRouterDOM
@@ -7,6 +7,7 @@ const { useNavigate, useParams } = ReactRouterDOM
 export function TodoEdit() {
 
     const [todoToEdit, setTodoToEdit] = useState(todoService.getEmptyTodo())
+    const { addTodo, updateTodo } = useStore()
     const navigate = useNavigate()
     const params = useParams()
 
@@ -41,17 +42,18 @@ export function TodoEdit() {
         setTodoToEdit(prevTodoToEdit => ({ ...prevTodoToEdit, [field]: value }))
     }
 
-    function onSaveTodo(ev) {
+    async function onSaveTodo(ev) {
         ev.preventDefault()
-        todoService.save(todoToEdit)
-            .then((savedTodo) => {
-                navigate('/todo')
-                showSuccessMsg(`Todo Saved (id: ${savedTodo._id})`)
-            })
-            .catch(err => {
-                showErrorMsg('Cannot save todo')
-                console.log('err:', err)
-            })
+        try {
+            if (params.todoId) {
+                await updateTodo(todoToEdit)
+            } else {
+                await addTodo(todoToEdit)
+            }
+            navigate('/todo')
+        } catch (err) {
+            console.log('err:', err)
+        }
     }
 
     const { txt, importance, isDone } = todoToEdit
