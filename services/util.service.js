@@ -4,7 +4,8 @@ export const utilService = {
     getRandomIntInclusive,
     loadFromStorage,
     saveToStorage,
-    animateCSS
+    animateCSS,
+    getRandomColor
 }
 
 function makeId(length = 6) {
@@ -57,4 +58,13 @@ function animateCSS(el, animation='bounce') {
 
         el.addEventListener('animationend', handleAnimationEnd, { once: true })
     })
+}
+
+function getRandomColor() {
+    const colors = [
+        '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
+        '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9',
+        '#F8C471', '#82E0AA', '#F1948A', '#85C1E9', '#D7BDE2'
+    ]
+    return colors[Math.floor(Math.random() * colors.length)]
 }

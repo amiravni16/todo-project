@@ -58,7 +58,7 @@ function save(todo) {
 }
 
 function getEmptyTodo(txt = '', importance = 5) {
-    return { txt, importance, isDone: false }
+    return { txt, importance, isDone: false, color: utilService.getRandomColor() }
 }
 
 function getDefaultFilter() {
@@ -129,10 +129,11 @@ function _getTodoCountByImportanceMap(todos) {
 
 // Data Model:
 // const todo = {
-//     _id: "gZ6Nvy",
+//     _id: "gZ6Bvy",
 //     txt: "Master Redux",
 //     importance: 9,
 //     isDone: false,
+//     color: "#FF6B6B",
 //     createdAt: 1711472269690,
 //     updatedAt: 1711472269690
 // }
