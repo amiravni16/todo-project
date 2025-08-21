@@ -13,6 +13,7 @@ export const todoService = {
     getDefaultFilter,
     getFilterFromSearchParams,
     getImportanceStats,
+    getDoneTodosPercent,
 }
 // For Debug (easy access from console):
 window.cs = todoService
@@ -91,6 +92,19 @@ function getImportanceStats() {
             return data
         })
 
+}
+
+function getDoneTodosPercent() {
+    return storageService.query(TODO_KEY)
+        .then(todos => {
+            if (todos.length === 0) return 0
+            const doneTodosCount = todos.reduce((acc, todo) => acc + (todo.isDone ? 1 : 0), 0)
+            return Math.round((doneTodosCount / todos.length) * 100)
+        })
+        .catch(err => {
+            console.error('Cannot get done todos percent:', err)
+            return 0
+        })
 }
 
 function _createTodos() {

@@ -19,6 +19,33 @@
     gap: 15px;
 }
 
+.todos-progress {
+    margin-top: 10px;
+    text-align: center;
+}
+
+.progress-info {
+    margin-bottom: 5px;
+    font-size: 0.9em;
+    color: var(--clr2bg-light);
+}
+
+.progress-bar {
+    width: 200px;
+    height: 8px;
+    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 0 auto;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #4CAF50, #45B7D1);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
 
 a.active {
     color: rgb(241, 212, 241);

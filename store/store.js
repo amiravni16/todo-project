@@ -63,3 +63,21 @@ export function appReducer(state = initialState, cmd) {
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 export const store = createStore(appReducer, composeEnhancers())
+
+// Initialize store with initial data
+function initStore() {
+    todoService.query()
+        .then(todos => {
+            store.dispatch({ type: SET_TODOS, todos })
+            return todoService.getDoneTodosPercent()
+        })
+        .then(doneTodosPercent => {
+            store.dispatch({ type: SET_DONE_TODOS_PERCENT, doneTodosPercent })
+        })
+        .catch(err => {
+            console.error('Failed to initialize store:', err)
+        })
+}
+
+// Initialize store when created
+initStore()

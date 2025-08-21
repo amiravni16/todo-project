@@ -21,7 +21,15 @@ export function loadTodos(filterBy) {
                 type: SET_TODOS,
                 todos,
             })
-            return todos
+            // Update done todos percentage
+            return todoService.getDoneTodosPercent()
+                .then(doneTodosPercent => {
+                    store.dispatch({
+                        type: SET_DONE_TODOS_PERCENT,
+                        doneTodosPercent,
+                    })
+                    return todos
+                })
         })
         .catch((err) => {
             console.error('Cannot load todos:', err)
@@ -41,7 +49,15 @@ export function saveTodo(todo) {
                 type,
                 todo: savedTodo,
             })
-            return savedTodo
+            // Update done todos percentage
+            return todoService.getDoneTodosPercent()
+                .then(doneTodosPercent => {
+                    store.dispatch({
+                        type: SET_DONE_TODOS_PERCENT,
+                        doneTodosPercent,
+                    })
+                    return savedTodo
+                })
         })
         .catch((err) => {
             console.error('Cannot save todo:', err)
@@ -57,6 +73,14 @@ export function removeTodo(todoId) {
                 type: REMOVE_TODO,
                 todoId,
             })
+            // Update done todos percentage
+            return todoService.getDoneTodosPercent()
+                .then(doneTodosPercent => {
+                    store.dispatch({
+                        type: SET_DONE_TODOS_PERCENT,
+                        doneTodosPercent,
+                    })
+                })
         })
         .catch((err) => {
             console.error('Cannot remove todo:', err)
