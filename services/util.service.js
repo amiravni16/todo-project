@@ -5,7 +5,8 @@ export const utilService = {
     loadFromStorage,
     saveToStorage,
     animateCSS,
-    getRandomColor
+    getRandomColor,
+    getFormattedTime
 }
 
 function makeId(length = 6) {
@@ -67,4 +68,13 @@ function getRandomColor() {
         '#F8C471', '#82E0AA', '#F1948A', '#85C1E9', '#D7BDE2'
     ]
     return colors[Math.floor(Math.random() * colors.length)]
+}
+
+function getFormattedTime(at) {
+    const timeDiff = Date.now() - at
+    const minutes = +(timeDiff / (1000 * 60)).toFixed(0)
+    if (minutes < 60) return minutes + ' minutes ago'
+    else if (minutes < 60 * 2) return 'About an hour ago'
+    else if (minutes < 60 * 24) return 'Several hours ago'
+    return 'A day or more ago'
 }

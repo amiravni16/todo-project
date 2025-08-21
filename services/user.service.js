@@ -12,7 +12,7 @@ export const userService = {
     updateBalance,
     addActivity,
     updateUserPreferences,
-    updateUserPrefs
+    getDefaultPreferences
 }
 const STORAGE_KEY_LOGGEDIN = 'user'
 const STORAGE_KEY = 'userDB'
@@ -41,15 +41,7 @@ function signup({ username, password, fullname }) {
         fullname,
         balance: 10000,
         activities: [],
-        preferences: {
-            theme: 'light',
-            notifications: true,
-            language: 'en'
-        },
-        prefs: {
-            color: 'black',
-            bgColor: 'white'
-        }
+        preferences: getDefaultPreferences()
     }
     user.createdAt = user.updatedAt = Date.now()
 
@@ -71,16 +63,8 @@ function _setLoggedinUser(user) {
         _id: user._id, 
         fullname: user.fullname,
         balance: user.balance || 10000,
-        activities: user.activities || [],
-        preferences: user.preferences || {
-            theme: 'light',
-            notifications: true,
-            language: 'en'
-        },
-        prefs: user.prefs || {
-            color: 'black',
-            bgColor: 'white'
-        }
+        preferences: user.preferences || getDefaultPreferences(),
+        activities: user.activities || []
     }
     sessionStorage.setItem(STORAGE_KEY_LOGGEDIN, JSON.stringify(userToSave))
     return userToSave
@@ -88,94 +72,67 @@ function _setLoggedinUser(user) {
 
 function getEmptyCredentials() {
     return {
-        fullname: '',
-        username: 'muki',
-        password: 'muki1',
-        balance: 10000,
-        activities: [],
-        preferences: {
-            theme: 'light',
-            notifications: true,
-            language: 'en'
-        },
-        prefs: {
-            color: 'black',
-            bgColor: 'white'
-        }
+        fullname: 'Admin Adminov',
+        username: 'admin',
+        password: 'admin'
     }
 }
 
-function updateBalance(userId, amount) {
-    return storageService.get(STORAGE_KEY, userId)
+function updateBalance(diff) {
+    const loggedinUser = getLoggedinUser()
+    if (!loggedinUser) return
+    return getById(loggedinUser._id)
         .then(user => {
-            user.balance += amount
-            user.updatedAt = Date.now()
+            user.balance += diff
             return storageService.put(STORAGE_KEY, user)
-        })
-        .then(updatedUser => {
-            // Update session storage if this is the logged-in user
-            const loggedInUser = getLoggedinUser()
-            if (loggedInUser && loggedInUser._id === userId) {
-                _setLoggedinUser(updatedUser)
-            }
-            return updatedUser
+                .then((user) => {
+                    _setLoggedinUser(user)
+                    return user.balance
+                })
         })
 }
 
-function addActivity(userId, activityTxt) {
-    return storageService.get(STORAGE_KEY, userId)
+function addActivity(txt) {
+    const activity = {
+        txt,
+        at: Date.now()
+    }
+    
+    const loggedinUser = getLoggedinUser()
+    if (!loggedinUser) return Promise.reject('No loggedin user')
+    return getById(loggedinUser._id)
         .then(user => {
             if (!user.activities) user.activities = []
-            user.activities.push({
-                txt: activityTxt,
-                at: Date.now()
-            })
-            user.updatedAt = Date.now()
-            return storageService.put(STORAGE_KEY, user)
+            user.activities.unshift(activity)
+            return user
         })
-        .then(updatedUser => {
-            // Update session storage if this is the logged-in user
-            const loggedInUser = getLoggedinUser()
-            if (loggedInUser && loggedInUser._id === userId) {
-                _setLoggedinUser(updatedUser)
-            }
-            return updatedUser
+        .then(userToUpdate => {
+            return storageService.put(STORAGE_KEY, userToUpdate)
+                .then((savedUser) => {
+                    _setLoggedinUser(savedUser)
+                    return savedUser
+                })
         })
 }
 
-function updateUserPreferences(userId, preferences) {
-    return storageService.get(STORAGE_KEY, userId)
+function updateUserPreferences(userToUpdate) {
+    const loggedinUserId = getLoggedinUser()._id
+    return getById(loggedinUserId)
         .then(user => {
-            user.preferences = { ...user.preferences, ...preferences }
-            user.updatedAt = Date.now()
+            user = { ...user, ...userToUpdate }
             return storageService.put(STORAGE_KEY, user)
-        })
-        .then(updatedUser => {
-            // Update session storage if this is the logged-in user
-            const loggedInUser = getLoggedinUser()
-            if (loggedInUser && loggedInUser._id === userId) {
-                _setLoggedinUser(updatedUser)
-            }
-            return updatedUser
+                .then((savedUser) => {
+                    _setLoggedinUser(savedUser)
+                    return savedUser
+                })
         })
 }
 
-function updateUserPrefs(userId, prefs) {
-    return storageService.get(STORAGE_KEY, userId)
-        .then(user => {
-            user.prefs = { ...user.prefs, ...prefs }
-            user.updatedAt = Date.now()
-            return storageService.put(STORAGE_KEY, user)
-        })
-        .then(updatedUser => {
-            // Update session storage if this is the logged-in user
-            const loggedInUser = getLoggedinUser()
-            if (loggedInUser && loggedInUser._id === userId) {
-                _setLoggedinUser(updatedUser)
-            }
-            return updatedUser
-        })
+function getDefaultPreferences() {
+    return { color: '#eeeeee', bgColor: "#191919", fullname: '' }
 }
+
+
 
 // signup({username: 'muki', password: 'muki1', fullname: 'Muki Ja'})
 // login({username: 'muki', password: 'muki1'})
@@ -189,14 +146,10 @@ function updateUserPrefs(userId, prefs) {
 //     balance: 10000,
 //     activities: [{txt: 'Added a Todo', at: 1523873242735}],
 //     preferences: {
-//         theme: 'light',
-//         notifications: true,
-//         language: 'en'
-//     },
-//     prefs: {
-//         color: 'black',
-//         bgColor: 'white'
+//         color: '#eeeeee',
+//         bgColor: '#191919'
 //     },
 //     createdAt: 1711490430252,
 //     updatedAt: 1711490430999
+// }
 // }
