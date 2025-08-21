@@ -31,10 +31,35 @@
     gap: 5px;
 }
 
+.user-name-balance {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
 .user-balance {
     font-weight: bold;
     color: #4CAF50;
     margin: 0;
+    font-size: 1.1em;
+    background-color: rgba(76, 175, 80, 0.1);
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: 1px solid #4CAF50;
+    transition: all 0.3s ease;
+}
+
+.user-balance.balance-increased {
+    animation: balancePulse 0.6s ease-in-out;
+    transform: scale(1.1);
+    background-color: rgba(76, 175, 80, 0.2);
+    box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+}
+
+@keyframes balancePulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1.1); }
 }
 
 .user-activities {

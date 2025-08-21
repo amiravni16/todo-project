@@ -28,8 +28,10 @@ export function AppHeader() {
                 {user ? (
                     <section className="user-info">
                         <div className="user-details">
-                            <Link to={`/user/${user._id}`}>Hello {user.fullname}</Link>
-                            <p className="user-balance">Balance: ${user.balance || 10000}</p>
+                            <div className="user-name-balance">
+                                <Link to={`/user/${user._id}`}>Hello {user.fullname}</Link>
+                                <span className="user-balance">${user.balance || 10000}</span>
+                            </div>
                             <button onClick={onLogout}>Logout</button>
                         </div>
                         {user.activities && user.activities.length > 0 && (

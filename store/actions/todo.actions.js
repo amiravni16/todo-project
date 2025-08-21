@@ -69,6 +69,20 @@ export function saveTodo(todo) {
             }
             return savedTodo
         })
+        .then((savedTodo) => {
+            // Check if todo was marked as done and increase balance
+            const loggedInUser = store.getState().user
+            if (loggedInUser && savedTodo.isDone && !todo.isDone) {
+                // Todo was just marked as done, increase balance by 10
+                return updateBalance(loggedInUser._id, 10)
+                    .then(() => {
+                        // Add a special activity for balance increase
+                        return addActivity(loggedInUser._id, `Completed todo and earned $10! Balance: $${loggedInUser.balance + 10}`)
+                            .then(() => savedTodo)
+                    })
+            }
+            return savedTodo
+        })
         .catch((err) => {
             console.error('Cannot save todo:', err)
             throw err
