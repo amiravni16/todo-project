@@ -3,6 +3,7 @@ import { TodoList } from "../cmps/TodoList.jsx"
 import { DataTable } from "../cmps/data-table/DataTable.jsx"
 import { loadTodos, removeTodo, saveTodo, setFilterBy } from '../store/actions/todo.actions.js'
 import { todoService } from "../services/todo.service.js"
+import { showErrorMsg, showSuccessMsg } from "../services/event-bus.service.js"
 
 const { useEffect, useState } = React
 const { Link, useSearchParams } = ReactRouterDOM
@@ -39,11 +40,20 @@ export function TodoIndex() {
         const ans = confirm('Do you want to delete this todo?')
         if (!ans) return
         removeTodo(todoId)
+            .then(() => {
+                console.log('removed todo ' + todoId);
+                showSuccessMsg(`Removed todo with ${todoId} id successfully`)
+            })
+            .catch(() => showErrorMsg('Had trouble removing the todo'))
     }
 
     function onToggleTodo(todo) {
         const todoToSave = { ...todo, isDone: !todo.isDone }
         saveTodo(todoToSave)
+            .then(() => {
+                showSuccessMsg(`Updated ${todoToSave.txt} successfully`)
+            })
+            .catch(() => showErrorMsg('Had trouble updating the todo'))
     }
 
     function onSetFilterBy(newFilterBy) {
