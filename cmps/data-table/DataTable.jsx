@@ -1,6 +1,8 @@
 import { DataTableRow } from "./DataTableRow.jsx"
 
 export function DataTable({ todos, onRemoveTodo }) {
+    if (!todos.length) return <p>No todos to show...</p>
+    
     return <table border="1" className="data-table">
         <thead>
             <tr>

@@ -2,6 +2,7 @@ import { TodoPreview } from "./TodoPreview.jsx"
 const { Link } = ReactRouterDOM
 
 export function TodoList({ todos, onRemoveTodo, onToggleTodo }) {
+    if (!todos.length) return <p>No todos to show...</p>
 
     return (
         <ul className="todo-list">
