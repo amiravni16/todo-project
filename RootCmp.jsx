@@ -2,6 +2,7 @@ const Router = ReactRouterDOM.HashRouter
 const { Routes, Route } = ReactRouterDOM
 
 import { AppHeader } from "./cmps/AppHeader.jsx"
+import { AppFooter } from "./cmps/AppFooter.jsx"
 import { Home } from "./pages/Home.jsx"
 import { About } from "./pages/About.jsx"
 import { TodoIndex } from "./pages/TodoIndex.jsx"
@@ -34,6 +35,7 @@ export function RootCmp() {
 
                     </Routes>
                 </main>
+                <AppFooter />
             </section>
         </Router>
     )

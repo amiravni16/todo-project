@@ -9,8 +9,11 @@ const { useSelector } = ReactRedux
 
 export function AppHeader() {
     const navigate = useNavigate()
+    const todos = useSelector((storeState) => storeState.todos)
     const user = useSelector(storeState => storeState.user)
     const doneTodosPercent = useSelector(storeState => storeState.doneTodosPercent)
+    
+    const formattedPercent = todos ? doneTodosPercent.toFixed(2) + '%' : null
     
     function onLogout() {
         logout()
@@ -61,19 +64,17 @@ export function AppHeader() {
                     <NavLink to="/todo" >Todos</NavLink>
                     <NavLink to="/dashboard" >Dashboard</NavLink>
                 </nav>
-                {user && (
-                    <div className="todos-progress">
-                        <div className="progress-info">
-                            <span>Todos Progress: {doneTodosPercent}%</span>
-                        </div>
-                        <div className="progress-bar">
-                            <div 
-                                className="progress-fill" 
-                                style={{ width: `${doneTodosPercent}%` }}
-                            ></div>
-                        </div>
-                    </div>
-                )}
+                        {todos &&
+                            <section className="todos-progress">
+                                <h3>you have finished {formattedPercent}</h3>
+                                <div className="progress-bar-container" >
+                                    <span>{formattedPercent}</span>
+                                    <div style={{ width: formattedPercent }}>
+
+                                    </div>
+                                </div>
+                            </section>
+                        }
             </section>
             <UserMsg />
         </header>
