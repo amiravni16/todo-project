@@ -20,7 +20,7 @@ export function TodoIndex() {
     useEffect(() => {
         // Get initial filter from URL params
         const defaultFilter = todoService.getFilterFromSearchParams(searchParams)
-        if (defaultFilter.txt !== filterBy.txt || defaultFilter.importance !== filterBy.importance) {
+        if (defaultFilter.txt !== filterBy.txt || defaultFilter.importance !== filterBy.importance || defaultFilter.isDone !== filterBy.isDone) {
             setFilterBy(defaultFilter)
         }
     }, [])
@@ -28,6 +28,11 @@ export function TodoIndex() {
     useEffect(() => {
         // Update URL when filter changes
         setSearchParams(filterBy)
+    }, [filterBy])
+
+    useEffect(() => {
+        // Load todos when filter changes
+        loadTodos(filterBy)
     }, [filterBy])
 
     function onRemoveTodo(todoId) {

@@ -16,7 +16,7 @@ export const SET_USER_BALANCE = 'SET_USER_BALANCE'
 
 const initialState = {
     todos: [],
-    filterBy: { txt: '', importance: 0 },
+    filterBy: { txt: '', importance: 0, isDone: 'all' },
     doneTodosPercent: 0,
     maxPage: 0,
     user: userService.getLoggedinUser(),
