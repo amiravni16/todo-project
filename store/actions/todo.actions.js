@@ -10,7 +10,7 @@ import {
   SET_MAX_PAGE,
   SET_FILTER_BY,
 } from '../store.js'
-import { addActivity } from './user.actions.js'
+import { addActivity, updateBalance } from './user.actions.js'
 
 export function loadTodos(filterBy) {
     store.dispatch({ type: SET_IS_LOADING, isLoading: true })
@@ -59,6 +59,16 @@ export function saveTodo(todo) {
                     return savedTodo
                 })
         })
+        .then((savedTodo) => {
+            // Add activity for the user
+            const loggedInUser = store.getState().user
+            if (loggedInUser) {
+                const actionName = todo._id ? 'Updated' : 'Added'
+                return addActivity(loggedInUser._id, `${actionName} a Todo: ${todo.txt}`)
+                    .then(() => savedTodo)
+            }
+            return savedTodo
+        })
         .catch((err) => {
             console.error('Cannot save todo:', err)
             throw err
@@ -81,6 +91,13 @@ export function removeTodo(todoId) {
                         doneTodosPercent,
                     })
                 })
+        })
+        .then(() => {
+            // Add activity for the user
+            const loggedInUser = store.getState().user
+            if (loggedInUser) {
+                return addActivity(loggedInUser._id, `Removed a Todo`)
+            }
         })
         .catch((err) => {
             console.error('Cannot remove todo:', err)

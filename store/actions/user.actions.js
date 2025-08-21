@@ -44,3 +44,33 @@ export function logout() {
             throw err
         })
 }
+
+export function addActivity(userId, activityTxt) {
+    return userService.addActivity(userId, activityTxt)
+        .then(updatedUser => {
+            store.dispatch({
+                type: SET_USER,
+                user: updatedUser
+            })
+            return updatedUser
+        })
+        .catch(err => {
+            console.error('Cannot add activity:', err)
+            throw err
+        })
+}
+
+export function updateBalance(userId, amount) {
+    return userService.updateBalance(userId, amount)
+        .then(updatedUser => {
+            store.dispatch({
+                type: SET_USER,
+                user: updatedUser
+            })
+            return updatedUser
+        })
+        .catch(err => {
+            console.error('Cannot update balance:', err)
+            throw err
+        })
+}

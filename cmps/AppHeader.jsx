@@ -26,10 +26,25 @@ export function AppHeader() {
             <section className="header-container">
                 <h1>React Todo App</h1>
                 {user ? (
-                    < section >
-                        <Link to={`/user/${user._id}`}>Hello {user.fullname}</Link>
-                        <button onClick={onLogout}>Logout</button>
-                    </ section >
+                    <section className="user-info">
+                        <div className="user-details">
+                            <Link to={`/user/${user._id}`}>Hello {user.fullname}</Link>
+                            <p className="user-balance">Balance: ${user.balance || 10000}</p>
+                            <button onClick={onLogout}>Logout</button>
+                        </div>
+                        {user.activities && user.activities.length > 0 && (
+                            <div className="user-activities">
+                                <h4>Recent Activities:</h4>
+                                <ul>
+                                    {user.activities.slice(-3).map((activity, index) => (
+                                        <li key={index}>
+                                            {activity.txt} - {new Date(activity.at).toLocaleDateString()}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
+                    </section>
                 ) : (
                     <section>
                         <LoginSignup onSetUser={onSetUser} />
