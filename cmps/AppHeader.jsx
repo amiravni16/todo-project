@@ -3,7 +3,7 @@ const { useNavigate } = ReactRouter
 
 import { UserMsg } from "./UserMsg.jsx"
 import { LoginSignup } from './LoginSignup.jsx'
-import { logout } from '../store/actions/user.actions.js'
+import { logout, addActivity } from '../store/actions/user.actions.js'
 
 const { useSelector } = ReactRedux
 

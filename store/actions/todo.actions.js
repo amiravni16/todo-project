@@ -10,7 +10,7 @@ import {
   SET_MAX_PAGE,
   SET_FILTER_BY,
 } from '../store.js'
-import { addActivity, updateBalance } from './user.actions.js'
+import { addActivity, changeBalance } from './user.actions.js'
 
 export function loadTodos(filterBy) {
     store.dispatch({ type: SET_IS_LOADING, isLoading: true })
@@ -64,7 +64,7 @@ export function saveTodo(todo) {
             const loggedInUser = store.getState().user
             if (loggedInUser) {
                 const actionName = todo._id ? 'Updated' : 'Added'
-                return addActivity(loggedInUser._id, `${actionName} a Todo: ${todo.txt}`)
+                return addActivity(`${actionName} a Todo: ${todo.txt}`)
                     .then(() => savedTodo)
             }
             return savedTodo
@@ -74,10 +74,10 @@ export function saveTodo(todo) {
             const loggedInUser = store.getState().user
             if (loggedInUser && savedTodo.isDone && !todo.isDone) {
                 // Todo was just marked as done, increase balance by 10
-                return updateBalance(loggedInUser._id, 10)
+                return changeBalance(10)
                     .then(() => {
                         // Add a special activity for balance increase
-                        return addActivity(loggedInUser._id, `Completed todo and earned $10! Balance: $${loggedInUser.balance + 10}`)
+                        return addActivity(`Completed todo and earned $10! Balance: $${loggedInUser.balance + 10}`)
                             .then(() => savedTodo)
                     })
             }
@@ -110,7 +110,7 @@ export function removeTodo(todoId) {
             // Add activity for the user
             const loggedInUser = store.getState().user
             if (loggedInUser) {
-                return addActivity(loggedInUser._id, `Removed a Todo`)
+                return addActivity(`Removed a Todo`)
             }
         })
         .catch((err) => {

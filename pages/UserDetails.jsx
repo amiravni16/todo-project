@@ -1,302 +1,84 @@
-const { useParams, useNavigate } = ReactRouter
-const { useSelector } = ReactRedux
-
-import { updateBalance, addActivity, updateUserPreferences, updateUserPrefs } from '../store/actions/user.actions.js'
-import '../assets/style/pages/UserDetails.css'
+const { useState, useEffect } = React
+const { useNavigate } = ReactRouterDOM
+const { useSelector, } = ReactRedux
+import { ActivityList } from '../cmps/ActivityList.jsx'
+import { showErrorMsg, showSuccessMsg } from '../services/event-bus.service.js'
+import { setCssVarVal } from '../services/util.service.js'
+import { updateUser } from '../store/actions/user.actions.js'
 
 export function UserDetails() {
-    const { userId } = useParams()
+    const loggedInUser = useSelector((storeState) => storeState.user)
+    const [userDetails, setUserDetails] = useState(null)
     const navigate = useNavigate()
-    const user = useSelector(storeState => storeState.user)
-    const [isEditing, setIsEditing] = React.useState(false)
-    const [editForm, setEditForm] = React.useState({
-        fullname: '',
-        preferences: {
-            theme: 'light',
-            notifications: true,
-            language: 'en'
-        },
-        prefs: {
-            color: 'black',
-            bgColor: 'white'
-        }
-    })
 
-    React.useEffect(() => {
-        if (user && user._id === userId) {
-            setEditForm({
-                fullname: user.fullname || '',
-                preferences: {
-                    theme: user.preferences?.theme || 'light',
-                    notifications: user.preferences?.notifications !== undefined ? user.preferences.notifications : true,
-                    language: user.preferences?.language || 'en'
-                },
-                prefs: {
-                    color: user.prefs?.color || 'black',
-                    bgColor: user.prefs?.bgColor || 'white'
-                }
-            })
-        }
-    }, [user, userId])
+    useEffect(() => {
+        if (loggedInUser) loadUserData()
+    }, [])
 
-    function handleInputChange(ev) {
-        const { name, value, type, checked } = ev.target
-        if (name.startsWith('preferences.')) {
-            const prefKey = name.split('.')[1]
-            setEditForm(prev => ({
-                ...prev,
-                preferences: {
-                    ...prev.preferences,
-                    [prefKey]: type === 'checkbox' ? checked : value
-                }
-            }))
-        } else if (name.startsWith('prefs.')) {
-            const prefKey = name.split('.')[1]
-            setEditForm(prev => ({
-                ...prev,
-                prefs: {
-                    ...prev.prefs,
-                    [prefKey]: value
-                }
-            }))
-        } else {
-            setEditForm(prev => ({
-                ...prev,
-                [name]: value
-            }))
-        }
-    }
-
-    async function handleSave() {
-        try {
-            if (user) {
-                // Update user preferences
-                await updateUserPreferences(user._id, editForm.preferences)
-                
-                // Update user prefs
-                await updateUserPrefs(user._id, editForm.prefs)
-                
-                // Add activity for the update
-                await addActivity(user._id, `Updated profile: ${editForm.fullname}`)
-            }
-            setIsEditing(false)
-        } catch (err) {
-            console.error('Cannot save user details:', err)
-        }
-    }
-
-    function handleCancel() {
-        setEditForm({
-            fullname: user.fullname || '',
-            preferences: {
-                theme: user.preferences?.theme || 'light',
-                notifications: user.preferences?.notifications !== undefined ? user.preferences.notifications : true,
-                language: user.preferences?.language || 'en'
-            },
-            prefs: {
-                color: user.prefs?.color || 'black',
-                bgColor: user.prefs?.bgColor || 'white'
-            }
+    function loadUserData() {
+        setUserDetails({
+            fullname: loggedInUser.fullname || '',
+            color: loggedInUser.pref?.color || '#eeeeee',
+            bgColor: loggedInUser.pref?.bgColor || '#191919',
+            activities: loggedInUser.activities || []
         })
-        setIsEditing(false)
     }
 
-    function getRelativeTime(timestamp) {
-        const now = Date.now()
-        const diff = now - timestamp
-        const minutes = Math.floor(diff / (1000 * 60))
-        const hours = Math.floor(diff / (1000 * 60 * 60))
-        const days = Math.floor(diff / (1000 * 60 * 60 * 24))
 
-        if (minutes < 1) return 'Just now'
-        if (minutes < 60) return `${minutes} minute${minutes === 1 ? '' : 's'} ago`
-        if (hours < 24) return `${hours} hour${hours === 1 ? '' : 's'} ago`
-        if (days < 7) return `${days} day${days === 1 ? '' : 's'} ago`
-        return new Date(timestamp).toLocaleDateString()
+    function onEditUser(ev) {
+        ev.preventDefault()
+        const userToUpdate = {
+            fullname: userDetails.fullname,
+            pref: { color: userDetails.color, bgColor: userDetails.bgColor }
+        }
+        updateUser(userToUpdate)
+            .then(() => {
+                showSuccessMsg('User updated successfully!')
+                // setCssVarVal('--clr1', userDetails.bgColor)
+            })
+            .catch(err => {
+                console.error('Cannot update user:', err)
+                showErrorMsg('Cannot update user')
+            })
     }
 
-    if (!user) {
-        return <div className="user-details-page">Please log in to view user details.</div>
+    function handleChange({ target }) {
+        const field = target.name
+        let value = target.value
+
+        switch (target.type) {
+            case 'number':
+            case 'range':
+                value = +value || ''
+                break
+
+            case 'checkbox':
+                value = target.checked
+                break
+        }
+        setUserDetails((prevUser) => ({ ...prevUser, [field]: value }))
     }
 
-    const isOwnProfile = user._id === userId
 
+
+    if (!loggedInUser || !userDetails) return <div>No user</div>
+    const { activities, fullname, color, bgColor } = userDetails
     return (
-        <div className="user-details-page">
-            <div className="user-details-container">
-                <div className="user-header">
-                    <h1>User Profile</h1>
-                    {isOwnProfile && (
-                        <button 
-                            className="edit-btn"
-                            onClick={() => setIsEditing(!isEditing)}
-                        >
-                            {isEditing ? 'Cancel' : 'Edit Profile'}
-                        </button>
-                    )}
-                </div>
+        <div className='container'>
+            <h1>Profile</h1>
+            <form className='activities-form' onSubmit={onEditUser}>
+                <label htmlFor="fullname">Name:</label>
+                <input type="text" id="fullname" name="fullname" value={fullname} onChange={handleChange} />
+                <label htmlFor="name">Color:</label>
+                <input type="color" name="color" value={color} onChange={handleChange} />
+                <label htmlFor="name">BG Color:</label>
+                <input type="color" name="bgColor" value={bgColor} onChange={handleChange} />
+                <button type="submit">save</button>
+            </form>
 
-                <div className="user-info-section">
-                    <h2>Basic Information</h2>
-                    <div className="info-row">
-                        <label>Username:</label>
-                        <span>{user.username}</span>
-                    </div>
-                    <div className="info-row">
-                        <label>Full Name:</label>
-                        {isEditing && isOwnProfile ? (
-                            <input
-                                type="text"
-                                name="fullname"
-                                value={editForm.fullname}
-                                onChange={handleInputChange}
-                                placeholder="Enter full name"
-                            />
-                        ) : (
-                            <span>{user.fullname}</span>
-                        )}
-                    </div>
-                    <div className="info-row">
-                        <label>Balance:</label>
-                        <span className="balance-display">${user.balance || 10000}</span>
-                    </div>
-                    <div className="info-row">
-                        <label>Member Since:</label>
-                        <span>{new Date(user.createdAt).toLocaleDateString()}</span>
-                    </div>
-                </div>
-
-                {isOwnProfile && (
-                    <div className="user-preferences-section">
-                        <h2>Preferences</h2>
-                        <div className="preferences-grid">
-                            <div className="preference-item">
-                                <label>Theme:</label>
-                                {isEditing ? (
-                                    <select
-                                        name="preferences.theme"
-                                        value={editForm.preferences.theme}
-                                        onChange={handleInputChange}
-                                    >
-                                        <option value="light">Light</option>
-                                        <option value="dark">Dark</option>
-                                        <option value="auto">Auto</option>
-                                    </select>
-                                ) : (
-                                    <span>{user.preferences?.theme || 'light'}</span>
-                                )}
-                            </div>
-                            <div className="preference-item">
-                                <label>Notifications:</label>
-                                {isEditing ? (
-                                    <input
-                                        type="checkbox"
-                                        name="preferences.notifications"
-                                        checked={editForm.preferences.notifications}
-                                        onChange={handleInputChange}
-                                    />
-                                ) : (
-                                    <span>{user.preferences?.notifications ? 'Enabled' : 'Disabled'}</span>
-                                )}
-                            </div>
-                            <div className="preference-item">
-                                <label>Language:</label>
-                                {isEditing ? (
-                                    <select
-                                        name="preferences.language"
-                                        value={editForm.preferences.language}
-                                        onChange={handleInputChange}
-                                    >
-                                        <option value="en">English</option>
-                                        <option value="es">Spanish</option>
-                                        <option value="fr">French</option>
-                                    </select>
-                                ) : (
-                                    <span>{user.preferences?.language || 'en'}</span>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                {isOwnProfile && (
-                    <div className="user-prefs-section">
-                        <h2>Display Preferences</h2>
-                        <div className="preferences-grid">
-                            <div className="preference-item">
-                                <label>Text Color:</label>
-                                {isEditing ? (
-                                    <input
-                                        type="color"
-                                        name="prefs.color"
-                                        value={editForm.prefs.color}
-                                        onChange={handleInputChange}
-                                    />
-                                ) : (
-                                    <span style={{ color: user.prefs?.color || 'black' }}>
-                                        {user.prefs?.color || 'black'}
-                                    </span>
-                                )}
-                            </div>
-                            <div className="preference-item">
-                                <label>Background Color:</label>
-                                {isEditing ? (
-                                    <input
-                                        type="color"
-                                        name="prefs.bgColor"
-                                        value={editForm.prefs.bgColor}
-                                        onChange={handleInputChange}
-                                    />
-                                ) : (
-                                    <span style={{ 
-                                        backgroundColor: user.prefs?.bgColor || 'white',
-                                        color: user.prefs?.color || 'black',
-                                        padding: '2px 6px',
-                                        borderRadius: '3px'
-                                    }}>
-                                        {user.prefs?.bgColor || 'white'}
-                                    </span>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                <div className="user-activities-section">
-                    <h2>Recent Activities</h2>
-                    {user.activities && user.activities.length > 0 ? (
-                        <div className="activities-list">
-                            {user.activities.slice(-10).reverse().map((activity, index) => (
-                                <div key={index} className="activity-item">
-                                    <span className="activity-text">{activity.txt}</span>
-                                    <span className="activity-time">
-                                        {getRelativeTime(activity.at)}
-                                    </span>
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <p>No activities yet.</p>
-                    )}
-                </div>
-
-                {isEditing && isOwnProfile && (
-                    <div className="edit-actions">
-                        <button className="save-btn" onClick={handleSave}>
-                            Save Changes
-                        </button>
-                        <button className="cancel-btn" onClick={handleCancel}>
-                            Cancel
-                        </button>
-                    </div>
-                )}
-
-                <div className="back-actions">
-                    <button className="back-btn" onClick={() => navigate('/')}>
-                        Back to Home
-                    </button>
-                </div>
-            </div>
+            {activities &&
+                <ActivityList activities={activities} />
+            }
         </div>
     )
 }
