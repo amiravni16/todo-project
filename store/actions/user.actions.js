@@ -1,5 +1,5 @@
 import { userService } from '../../services/user.service.js'
-import { SET_USER, store } from '../store.js'
+import { SET_USER, SET_USER_BALANCE, store } from '../store.js'
 
 export function login(credentials) {
     return userService.login(credentials)
@@ -45,14 +45,13 @@ export function logout() {
         })
 }
 
-export function addActivity(userId, activityTxt) {
-    return userService.addActivity(userId, activityTxt)
-        .then(updatedUser => {
+export function addActivity(txt) {
+    return userService.addActivity(txt)
+        .then((updatedUser) => {
             store.dispatch({
                 type: SET_USER,
-                user: updatedUser
+                user: updatedUser,
             })
-            return updatedUser
         })
         .catch(err => {
             console.error('Cannot add activity:', err)
@@ -60,47 +59,28 @@ export function addActivity(userId, activityTxt) {
         })
 }
 
-export function updateBalance(userId, amount) {
-    return userService.updateBalance(userId, amount)
-        .then(updatedUser => {
-            store.dispatch({
-                type: SET_USER,
-                user: updatedUser
-            })
-            return updatedUser
+export function changeBalance(amount) {
+    return userService.updateBalance(amount)
+        .then(newBalance => {
+            store.dispatch({ type: SET_USER_BALANCE, balance: newBalance })
+            return newBalance
         })
         .catch(err => {
-            console.error('Cannot update balance:', err)
+            console.error('Cannot change balance:', err)
             throw err
         })
 }
 
-export function updateUserPreferences(userId, preferences) {
-    return userService.updateUserPreferences(userId, preferences)
-        .then(updatedUser => {
+export function updateUser(userToUpdate) {
+    return userService.updateUserPreferences(userToUpdate)
+        .then((updatedUser) => {
             store.dispatch({
                 type: SET_USER,
-                user: updatedUser
+                user: updatedUser,
             })
-            return updatedUser
         })
         .catch(err => {
-            console.error('Cannot update user preferences:', err)
-            throw err
-        })
-}
-
-export function updateUserPrefs(userId, prefs) {
-    return userService.updateUserPrefs(userId, prefs)
-        .then(updatedUser => {
-            store.dispatch({
-                type: SET_USER,
-                user: updatedUser
-            })
-            return updatedUser
-        })
-        .catch(err => {
-            console.error('Cannot update user prefs:', err)
+            console.error('Cannot update user:', err)
             throw err
         })
 }
