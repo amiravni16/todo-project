@@ -31,6 +31,8 @@ export function TodoIndex() {
     }, [filterBy])
 
     function onRemoveTodo(todoId) {
+        const ans = confirm('Do you want to delete this todo?')
+        if (!ans) return
         removeTodo(todoId)
     }
 
