@@ -1,0 +1,9 @@
+.loader {
+    text-align: center;
+    padding-top: 10vh;
+    font-size: 2rem;
+}
+
+.pagination-btns {
+    margin-block: 10px;
+}
