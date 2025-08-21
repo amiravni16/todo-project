@@ -89,3 +89,18 @@ export function updateUserPreferences(userId, preferences) {
             throw err
         })
 }
+
+export function updateUserPrefs(userId, prefs) {
+    return userService.updateUserPrefs(userId, prefs)
+        .then(updatedUser => {
+            store.dispatch({
+                type: SET_USER,
+                user: updatedUser
+            })
+            return updatedUser
+        })
+        .catch(err => {
+            console.error('Cannot update user prefs:', err)
+            throw err
+        })
+}

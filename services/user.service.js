@@ -11,7 +11,8 @@ export const userService = {
     getEmptyCredentials,
     updateBalance,
     addActivity,
-    updateUserPreferences
+    updateUserPreferences,
+    updateUserPrefs
 }
 const STORAGE_KEY_LOGGEDIN = 'user'
 const STORAGE_KEY = 'userDB'
@@ -44,6 +45,10 @@ function signup({ username, password, fullname }) {
             theme: 'light',
             notifications: true,
             language: 'en'
+        },
+        prefs: {
+            color: 'black',
+            bgColor: 'white'
         }
     }
     user.createdAt = user.updatedAt = Date.now()
@@ -71,6 +76,10 @@ function _setLoggedinUser(user) {
             theme: 'light',
             notifications: true,
             language: 'en'
+        },
+        prefs: user.prefs || {
+            color: 'black',
+            bgColor: 'white'
         }
     }
     sessionStorage.setItem(STORAGE_KEY_LOGGEDIN, JSON.stringify(userToSave))
@@ -88,6 +97,10 @@ function getEmptyCredentials() {
             theme: 'light',
             notifications: true,
             language: 'en'
+        },
+        prefs: {
+            color: 'black',
+            bgColor: 'white'
         }
     }
 }
@@ -147,6 +160,23 @@ function updateUserPreferences(userId, preferences) {
         })
 }
 
+function updateUserPrefs(userId, prefs) {
+    return storageService.get(STORAGE_KEY, userId)
+        .then(user => {
+            user.prefs = { ...user.prefs, ...prefs }
+            user.updatedAt = Date.now()
+            return storageService.put(STORAGE_KEY, user)
+        })
+        .then(updatedUser => {
+            // Update session storage if this is the logged-in user
+            const loggedInUser = getLoggedinUser()
+            if (loggedInUser && loggedInUser._id === userId) {
+                _setLoggedinUser(updatedUser)
+            }
+            return updatedUser
+        })
+}
+
 // signup({username: 'muki', password: 'muki1', fullname: 'Muki Ja'})
 // login({username: 'muki', password: 'muki1'})
 
@@ -162,6 +192,10 @@ function updateUserPreferences(userId, preferences) {
 //         theme: 'light',
 //         notifications: true,
 //         language: 'en'
+//     },
+//     prefs: {
+//         color: 'black',
+//         bgColor: 'white'
 //     },
 //     createdAt: 1711490430252,
 //     updatedAt: 1711490430999

@@ -1,7 +1,7 @@
 const { useParams, useNavigate } = ReactRouter
 const { useSelector } = ReactRedux
 
-import { updateBalance, addActivity, updateUserPreferences } from '../store/actions/user.actions.js'
+import { updateBalance, addActivity, updateUserPreferences, updateUserPrefs } from '../store/actions/user.actions.js'
 import '../assets/style/pages/UserDetails.css'
 
 export function UserDetails() {
@@ -15,6 +15,10 @@ export function UserDetails() {
             theme: 'light',
             notifications: true,
             language: 'en'
+        },
+        prefs: {
+            color: 'black',
+            bgColor: 'white'
         }
     })
 
@@ -26,6 +30,10 @@ export function UserDetails() {
                     theme: user.preferences?.theme || 'light',
                     notifications: user.preferences?.notifications !== undefined ? user.preferences.notifications : true,
                     language: user.preferences?.language || 'en'
+                },
+                prefs: {
+                    color: user.prefs?.color || 'black',
+                    bgColor: user.prefs?.bgColor || 'white'
                 }
             })
         }
@@ -42,6 +50,15 @@ export function UserDetails() {
                     [prefKey]: type === 'checkbox' ? checked : value
                 }
             }))
+        } else if (name.startsWith('prefs.')) {
+            const prefKey = name.split('.')[1]
+            setEditForm(prev => ({
+                ...prev,
+                prefs: {
+                    ...prev.prefs,
+                    [prefKey]: value
+                }
+            }))
         } else {
             setEditForm(prev => ({
                 ...prev,
@@ -55,6 +72,9 @@ export function UserDetails() {
             if (user) {
                 // Update user preferences
                 await updateUserPreferences(user._id, editForm.preferences)
+                
+                // Update user prefs
+                await updateUserPrefs(user._id, editForm.prefs)
                 
                 // Add activity for the update
                 await addActivity(user._id, `Updated profile: ${editForm.fullname}`)
@@ -72,6 +92,10 @@ export function UserDetails() {
                 theme: user.preferences?.theme || 'light',
                 notifications: user.preferences?.notifications !== undefined ? user.preferences.notifications : true,
                 language: user.preferences?.language || 'en'
+            },
+            prefs: {
+                color: user.prefs?.color || 'black',
+                bgColor: user.prefs?.bgColor || 'white'
             }
         })
         setIsEditing(false)
@@ -175,6 +199,49 @@ export function UserDetails() {
                                     </select>
                                 ) : (
                                     <span>{user.preferences?.language || 'en'}</span>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {isOwnProfile && (
+                    <div className="user-prefs-section">
+                        <h2>Display Preferences</h2>
+                        <div className="preferences-grid">
+                            <div className="preference-item">
+                                <label>Text Color:</label>
+                                {isEditing ? (
+                                    <input
+                                        type="color"
+                                        name="prefs.color"
+                                        value={editForm.prefs.color}
+                                        onChange={handleInputChange}
+                                    />
+                                ) : (
+                                    <span style={{ color: user.prefs?.color || 'black' }}>
+                                        {user.prefs?.color || 'black'}
+                                    </span>
+                                )}
+                            </div>
+                            <div className="preference-item">
+                                <label>Background Color:</label>
+                                {isEditing ? (
+                                    <input
+                                        type="color"
+                                        name="prefs.bgColor"
+                                        value={editForm.prefs.bgColor}
+                                        onChange={handleInputChange}
+                                    />
+                                ) : (
+                                    <span style={{ 
+                                        backgroundColor: user.prefs?.bgColor || 'white',
+                                        color: user.prefs?.color || 'black',
+                                        padding: '2px 6px',
+                                        borderRadius: '3px'
+                                    }}>
+                                        {user.prefs?.bgColor || 'white'}
+                                    </span>
                                 )}
                             </div>
                         </div>
