@@ -10,7 +10,8 @@ export const userService = {
     query,
     getEmptyCredentials,
     updateBalance,
-    addActivity
+    addActivity,
+    updateUserPreferences
 }
 const STORAGE_KEY_LOGGEDIN = 'user'
 const STORAGE_KEY = 'userDB'
@@ -38,7 +39,12 @@ function signup({ username, password, fullname }) {
         password, 
         fullname,
         balance: 10000,
-        activities: []
+        activities: [],
+        preferences: {
+            theme: 'light',
+            notifications: true,
+            language: 'en'
+        }
     }
     user.createdAt = user.updatedAt = Date.now()
 
@@ -60,7 +66,12 @@ function _setLoggedinUser(user) {
         _id: user._id, 
         fullname: user.fullname,
         balance: user.balance || 10000,
-        activities: user.activities || []
+        activities: user.activities || [],
+        preferences: user.preferences || {
+            theme: 'light',
+            notifications: true,
+            language: 'en'
+        }
     }
     sessionStorage.setItem(STORAGE_KEY_LOGGEDIN, JSON.stringify(userToSave))
     return userToSave
@@ -72,7 +83,12 @@ function getEmptyCredentials() {
         username: 'muki',
         password: 'muki1',
         balance: 10000,
-        activities: []
+        activities: [],
+        preferences: {
+            theme: 'light',
+            notifications: true,
+            language: 'en'
+        }
     }
 }
 
@@ -114,6 +130,23 @@ function addActivity(userId, activityTxt) {
         })
 }
 
+function updateUserPreferences(userId, preferences) {
+    return storageService.get(STORAGE_KEY, userId)
+        .then(user => {
+            user.preferences = { ...user.preferences, ...preferences }
+            user.updatedAt = Date.now()
+            return storageService.put(STORAGE_KEY, user)
+        })
+        .then(updatedUser => {
+            // Update session storage if this is the logged-in user
+            const loggedInUser = getLoggedinUser()
+            if (loggedInUser && loggedInUser._id === userId) {
+                _setLoggedinUser(updatedUser)
+            }
+            return updatedUser
+        })
+}
+
 // signup({username: 'muki', password: 'muki1', fullname: 'Muki Ja'})
 // login({username: 'muki', password: 'muki1'})
 
@@ -125,6 +158,11 @@ function addActivity(userId, activityTxt) {
 //     fullname: "Muki Ja",
 //     balance: 10000,
 //     activities: [{txt: 'Added a Todo', at: 1523873242735}],
+//     preferences: {
+//         theme: 'light',
+//         notifications: true,
+//         language: 'en'
+//     },
 //     createdAt: 1711490430252,
 //     updatedAt: 1711490430999
 // }

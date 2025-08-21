@@ -32,7 +32,10 @@ export function AppHeader() {
                                 <Link to={`/user/${user._id}`}>Hello {user.fullname}</Link>
                                 <span className="user-balance">${user.balance || 10000}</span>
                             </div>
-                            <button onClick={onLogout}>Logout</button>
+                            <div className="user-actions">
+                                <Link to={`/user/${user._id}`} className="profile-link">Profile</Link>
+                                <button onClick={onLogout}>Logout</button>
+                            </div>
                         </div>
                         {user.activities && user.activities.length > 0 && (
                             <div className="user-activities">

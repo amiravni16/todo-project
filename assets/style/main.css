@@ -22,3 +22,6 @@
 @import "cmps/TodoPreview.css";
 @import "cmps/TodoDetails.css";
 @import "cmps/TodoEdit.css";
+
+/* Pages */
+@import "pages/UserDetails.css";

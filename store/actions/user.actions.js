@@ -74,3 +74,18 @@ export function updateBalance(userId, amount) {
             throw err
         })
 }
+
+export function updateUserPreferences(userId, preferences) {
+    return userService.updateUserPreferences(userId, preferences)
+        .then(updatedUser => {
+            store.dispatch({
+                type: SET_USER,
+                user: updatedUser
+            })
+            return updatedUser
+        })
+        .catch(err => {
+            console.error('Cannot update user preferences:', err)
+            throw err
+        })
+}
