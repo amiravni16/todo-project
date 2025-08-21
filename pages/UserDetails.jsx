@@ -18,8 +18,8 @@ export function UserDetails() {
     function loadUserData() {
         setUserDetails({
             fullname: loggedInUser.fullname || '',
-            color: loggedInUser.pref?.color || '#eeeeee',
-            bgColor: loggedInUser.pref?.bgColor || '#191919',
+            color: loggedInUser.preferences?.color || '#eeeeee',
+            bgColor: loggedInUser.preferences?.bgColor || '#191919',
             activities: loggedInUser.activities || []
         })
     }
@@ -29,7 +29,7 @@ export function UserDetails() {
         ev.preventDefault()
         const userToUpdate = {
             fullname: userDetails.fullname,
-            pref: { color: userDetails.color, bgColor: userDetails.bgColor }
+            preferences: { color: userDetails.color, bgColor: userDetails.bgColor }
         }
         updateUser(userToUpdate)
             .then(() => {
