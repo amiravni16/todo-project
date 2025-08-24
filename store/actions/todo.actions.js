@@ -1,39 +1,48 @@
 import { todoService } from '../../services/todo.service.js'
 import { addActivity, changeBalance } from './user.actions.js'
+import { 
+    SET_IS_LOADING, 
+    SET_TODOS, 
+    ADD_TODO, 
+    REMOVE_TODO, 
+    UPDATE_TODO, 
+    SET_FILTER_BY, 
+    SET_DONE_TODOS_PERCENT 
+} from '../store.js'
 
 // Action Creators (Pure Functions)
 export const setIsLoading = (isLoading) => ({
-    type: 'SET_IS_LOADING',
+    type: SET_IS_LOADING,
     isLoading
 })
 
 export const setTodos = (todos) => ({
-    type: 'SET_TODOS',
+    type: SET_TODOS,
     todos
 })
 
 export const addTodo = (todo) => ({
-    type: 'ADD_TODO',
+    type: ADD_TODO,
     todo
 })
 
 export const removeTodoAction = (todoId) => ({
-    type: 'REMOVE_TODO',
+    type: REMOVE_TODO,
     todoId
 })
 
 export const updateTodo = (todo) => ({
-    type: 'UPDATE_TODO',
+    type: UPDATE_TODO,
     todo
 })
 
 export const setFilterBy = (filterBy) => ({
-    type: 'SET_FILTER_BY',
+    type: SET_FILTER_BY,
     filterBy
 })
 
 export const setDoneTodosPercent = (doneTodosPercent) => ({
-    type: 'SET_DONE_TODOS_PERCENT',
+    type: SET_DONE_TODOS_PERCENT,
     doneTodosPercent
 })
 
@@ -76,13 +85,13 @@ export function saveTodo(todo) {
             
             // Add activity for the user
             const state = getState()
-            if (state.user) {
+            if (state.user.user) {
                 const actionName = todo._id ? 'Updated' : 'Added'
                 await dispatch(addActivity(`${actionName} a Todo: ${todo.txt}`))
             }
             
             // Check if todo was marked as done and increase balance
-            if (state.user && savedTodo.isDone && !todo.isDone) {
+            if (state.user.user && savedTodo.isDone && !todo.isDone) {
                 // Todo was just marked as done, increase balance by 10
                 const newBalance = await dispatch(changeBalance(10))
                 
@@ -110,7 +119,7 @@ export function removeTodo(todoId) {
             
             // Add activity for the user
             const state = getState()
-            if (state.user) {
+            if (state.user.user) {
                 await dispatch(addActivity('Removed a Todo'))
             }
         } catch (err) {
