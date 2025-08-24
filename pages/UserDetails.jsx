@@ -3,11 +3,11 @@ const { useNavigate } = ReactRouterDOM
 const { useSelector, useDispatch } = ReactRedux
 import { ActivityList } from '../cmps/ActivityList.jsx'
 import { showErrorMsg, showSuccessMsg } from '../services/event-bus.service.js'
-import { setCssVarVal } from '../services/util.service.js'
+import { utilService } from '../services/util.service.js'
 import { updateUser } from '../store/actions/user.actions.js'
 
 export function UserDetails() {
-    const loggedInUser = useSelector((storeState) => storeState.user)
+    const loggedInUser = useSelector((storeState) => storeState.user.user)
     const dispatch = useDispatch()
     const [userDetails, setUserDetails] = useState(null)
     const navigate = useNavigate()
@@ -35,7 +35,9 @@ export function UserDetails() {
         dispatch(updateUser(userToUpdate))
             .then(() => {
                 showSuccessMsg('User updated successfully!')
-                // setCssVarVal('--clr1', userDetails.bgColor)
+                // Apply the saved colors to the page
+                utilService.setCssVarVal('--clr1', userDetails.bgColor)
+                utilService.setCssVarVal('--clr2', userDetails.color)
             })
             .catch(err => {
                 console.error('Cannot update user:', err)
@@ -70,11 +72,20 @@ export function UserDetails() {
             <form className='activities-form' onSubmit={onEditUser}>
                 <label htmlFor="fullname">Name:</label>
                 <input type="text" id="fullname" name="fullname" value={fullname} onChange={handleChange} />
-                <label htmlFor="name">Color:</label>
-                <input type="color" name="color" value={color} onChange={handleChange} />
-                <label htmlFor="name">BG Color:</label>
-                <input type="color" name="bgColor" value={bgColor} onChange={handleChange} />
-                <button type="submit">save</button>
+                
+                <label htmlFor="color">Text Color:</label>
+                <div className="color-input-group">
+                    <input type="color" name="color" value={color} onChange={handleChange} />
+                    <span className="color-preview" style={{ color: color }}>Sample Text</span>
+                </div>
+                
+                <label htmlFor="bgColor">Background Color:</label>
+                <div className="color-input-group">
+                    <input type="color" name="bgColor" value={bgColor} onChange={handleChange} />
+                    <span className="color-preview" style={{ backgroundColor: bgColor, color: color, padding: '5px', borderRadius: '3px' }}>Sample Background</span>
+                </div>
+                
+                <button type="submit">Save Changes</button>
             </form>
 
             {activities &&
