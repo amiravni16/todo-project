@@ -18,8 +18,8 @@ export function UserDetails() {
     function loadUserData() {
         setUserDetails({
             fullname: loggedInUser.fullname || '',
-            color: loggedInUser.preferences?.color || '#eeeeee',
-            bgColor: loggedInUser.preferences?.bgColor || '#191919',
+            color: (loggedInUser.preferences && loggedInUser.preferences.color) || '#eeeeee',
+            bgColor: (loggedInUser.preferences && loggedInUser.preferences.bgColor) || '#191919',
             activities: loggedInUser.activities || []
         })
     }
