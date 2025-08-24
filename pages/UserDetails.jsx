@@ -1,6 +1,6 @@
 const { useState, useEffect } = React
 const { useNavigate } = ReactRouterDOM
-const { useSelector, } = ReactRedux
+const { useSelector, useDispatch } = ReactRedux
 import { ActivityList } from '../cmps/ActivityList.jsx'
 import { showErrorMsg, showSuccessMsg } from '../services/event-bus.service.js'
 import { setCssVarVal } from '../services/util.service.js'
@@ -8,6 +8,7 @@ import { updateUser } from '../store/actions/user.actions.js'
 
 export function UserDetails() {
     const loggedInUser = useSelector((storeState) => storeState.user)
+    const dispatch = useDispatch()
     const [userDetails, setUserDetails] = useState(null)
     const navigate = useNavigate()
 
@@ -31,7 +32,7 @@ export function UserDetails() {
             fullname: userDetails.fullname,
             preferences: { color: userDetails.color, bgColor: userDetails.bgColor }
         }
-        updateUser(userToUpdate)
+        dispatch(updateUser(userToUpdate))
             .then(() => {
                 showSuccessMsg('User updated successfully!')
                 // setCssVarVal('--clr1', userDetails.bgColor)

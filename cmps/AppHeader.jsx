@@ -4,18 +4,19 @@ import { UserMsg } from "./UserMsg.jsx"
 import { LoginSignup } from './LoginSignup.jsx'
 import { logout, addActivity } from '../store/actions/user.actions.js'
 
-const { useSelector } = ReactRedux
+const { useSelector, useDispatch } = ReactRedux
 
 export function AppHeader() {
     const navigate = useNavigate()
-    const todos = useSelector((storeState) => storeState.todos)
-    const user = useSelector(storeState => storeState.user)
-    const doneTodosPercent = useSelector(storeState => storeState.doneTodosPercent)
+    const dispatch = useDispatch()
+    const todos = useSelector((storeState) => storeState.todos.todos)
+    const user = useSelector(storeState => storeState.user.user)
+    const doneTodosPercent = useSelector(storeState => storeState.todos.doneTodosPercent)
     
     const formattedPercent = todos ? doneTodosPercent.toFixed(2) + '%' : null
     
     function onLogout() {
-        logout()
+        dispatch(logout())
         navigate('/')
     }
 

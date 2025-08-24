@@ -8,13 +8,14 @@ import { showErrorMsg, showSuccessMsg } from "../services/event-bus.service.js"
 
 const { useEffect, useState } = React
 const { Link, useSearchParams } = ReactRouterDOM
-const { useSelector } = ReactRedux
+const { useSelector, useDispatch } = ReactRedux
 
 export function TodoIndex() {
     // Use Redux store
-    const todos = useSelector((storeState) => storeState.todos)
-    const isLoading = useSelector(storeState => storeState.isLoading)
-    const filterBy = useSelector(storeState => storeState.filterBy)
+    const todos = useSelector((storeState) => storeState.todos.todos)
+    const isLoading = useSelector(storeState => storeState.todos.isLoading)
+    const filterBy = useSelector(storeState => storeState.todos.filterBy)
+    const dispatch = useDispatch()
 
     // Local state for sorting and paging
     const [sortBy, setSortBy] = useState({ field: 'createdAt', direction: 'desc' })
@@ -28,7 +29,7 @@ export function TodoIndex() {
         // Get initial filter from URL params
         const defaultFilter = todoService.getFilterFromSearchParams(searchParams)
         if (defaultFilter.txt !== filterBy.txt || defaultFilter.importance !== filterBy.importance || defaultFilter.isDone !== filterBy.isDone) {
-            setFilterBy(defaultFilter)
+            dispatch(setFilterBy(defaultFilter))
         }
     }, [])
 
@@ -39,7 +40,7 @@ export function TodoIndex() {
 
     useEffect(() => {
         // Load todos when filter changes
-        loadTodos(filterBy)
+        dispatch(loadTodos(filterBy))
     }, [filterBy])
 
     // Reset to first page when filter changes
@@ -50,7 +51,7 @@ export function TodoIndex() {
     function onRemoveTodo(todoId) {
         const ans = confirm('Do you want to delete this todo?')
         if (!ans) return
-        removeTodo(todoId)
+        dispatch(removeTodo(todoId))
             .then(() => {
                 console.log('removed todo ' + todoId);
                 showSuccessMsg(`Removed todo with ${todoId} id successfully`)
@@ -60,7 +61,7 @@ export function TodoIndex() {
 
     function onToggleTodo(todo) {
         const todoToSave = { ...todo, isDone: !todo.isDone }
-        saveTodo(todoToSave)
+        dispatch(saveTodo(todoToSave))
             .then(() => {
                 showSuccessMsg(`Updated ${todoToSave.txt} successfully`)
             })
@@ -68,7 +69,7 @@ export function TodoIndex() {
     }
 
     function onSetFilterBy(newFilterBy) {
-        setFilterBy(newFilterBy)
+        dispatch(setFilterBy(newFilterBy))
     }
 
     function onSortChange(newSortBy) {

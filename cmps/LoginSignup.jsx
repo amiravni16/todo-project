@@ -2,9 +2,10 @@ import { userService } from '../services/user.service.js'
 import { login, signup } from '../store/actions/user.actions.js'
 
 const { useState } = React
+const { useDispatch } = ReactRedux
 
 export function LoginSignup({ onSetUser }) {
-
+    const dispatch = useDispatch()
     const [isSignup, setIsSignUp] = useState(false)
     const [credentials, setCredentials] = useState(userService.getEmptyCredentials())
 
@@ -24,7 +25,7 @@ export function LoginSignup({ onSetUser }) {
 
     async function handleLogin(credentials) {
         try {
-            const user = await login(credentials)
+            const user = await dispatch(login(credentials))
             onSetUser(user)
         } catch (err) {
             console.error('Login failed:', err)
@@ -33,7 +34,7 @@ export function LoginSignup({ onSetUser }) {
 
     async function handleSignup(credentials) {
         try {
-            const user = await signup(credentials)
+            const user = await dispatch(signup(credentials))
             onSetUser(user)
         } catch (err) {
             console.error('Signup failed:', err)

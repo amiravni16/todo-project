@@ -4,9 +4,10 @@ import { saveTodo } from '../store/actions/todo.actions.js'
 
 const { useState, useEffect } = React
 const { useNavigate, useParams } = ReactRouterDOM
+const { useDispatch } = ReactRedux
 
 export function TodoEdit() {
-
+    const dispatch = useDispatch()
     const [todoToEdit, setTodoToEdit] = useState(todoService.getEmptyTodo())
     const navigate = useNavigate()
     const params = useParams()
@@ -44,7 +45,7 @@ export function TodoEdit() {
 
     function onSaveTodo(ev) {
         ev.preventDefault()
-        saveTodo(todoToEdit)
+        dispatch(saveTodo(todoToEdit))
             .then((savedTodo) => {
                 navigate('/todo')
                 showSuccessMsg(`Todo Saved (id: ${savedTodo._id})`)
