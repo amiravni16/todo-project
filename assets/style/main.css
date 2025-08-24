@@ -25,5 +25,6 @@
 @import "cmps/TodoEdit.css";
 
 /* Pages */
+@import "pages/Home.css";
 @import "pages/UserDetails.css";
 @import "pages/TodoIndex.css";
