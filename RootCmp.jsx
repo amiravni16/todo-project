@@ -1,5 +1,5 @@
 const Router = ReactRouterDOM.HashRouter
-const { Routes, Route } = ReactRouterDOM
+const { Routes, Route, Navigate } = ReactRouterDOM
 
 import { AppHeader } from "./cmps/AppHeader.jsx"
 import { AppFooter } from "./cmps/AppFooter.jsx"
@@ -31,6 +31,7 @@ export function RootCmp() {
                         <Route path="/todo/edit" element={<TodoEdit />} />
                         <Route path="/todo" element={<TodoIndex />} />
                         <Route path="/dashboard" element={<Dashboard />} />
+                        <Route path="/user" element={<Navigate to="/" replace />} />
                         <Route path="/user/:userId" element={<UserDetails />} />
 
                     </Routes>
