@@ -5,43 +5,36 @@ const { useParams, useNavigate, Link } = ReactRouterDOM
 const { useSelector } = ReactRedux
 
 export function TodoDetails() {
-
-    const [todo, setTodo] = useState(null)
-    const isLoading = useSelector(storeState => storeState.isLoading)
-    const params = useParams()
     const navigate = useNavigate()
+    const { todoId } = useParams()
+    const todos = useSelector(storeState => storeState.todos.todos)
+    const isLoading = useSelector(storeState => storeState.todos.isLoading)
+    const todo = todos.find(todo => todo._id === todoId)
 
     useEffect(() => {
-        loadTodo()
-    }, [params.todoId])
+        if (!todo && !isLoading) {
+            showErrorMsg('Todo not found')
+            navigate('/todo')
+        }
+    }, [todo, isLoading])
 
-    function loadTodo() {
-        todoService.get(params.todoId)
-            .then(setTodo)
-            .catch(err => {
-                console.error('err:', err)
-                navigate('/todo')
-            })
-    }
+    if (isLoading) return <div>Loading...</div>
+    if (!todo) return <div>Todo not found</div>
 
-    function onBack() {
-        // If nothing to do here, better use a Link
-        navigate('/todo')
-        // navigate(-1)
-    }
-
-    if (!todo) return <div>Loading...</div>
     return (
         <section className="todo-details">
-            <h1 className={(todo.isDone)? 'done' : ''}>{todo.txt}</h1>
-            <h2>{(todo.isDone)? 'Done!' : 'In your list'}</h2>
-
-            <h1>Todo importance: {todo.importance}</h1>
-            <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Enim rem accusantium, itaque ut voluptates quo? Vitae animi maiores nisi, assumenda molestias odit provident quaerat accusamus, reprehenderit impedit, possimus est ad?</p>
-            <button onClick={onBack}>Back to list</button>
-            <div>
-                <Link to={`/todo/${todo.nextTodoId}`}>Next Todo</Link> |
-                <Link to={`/todo/${todo.prevTodoId}`}>Previous Todo</Link>
+            <h1>Todo Details</h1>
+            <div className="todo-info">
+                <h2>{todo.txt}</h2>
+                <p><strong>Importance:</strong> {todo.importance}</p>
+                <p><strong>Status:</strong> {todo.isDone ? 'Completed' : 'Pending'}</p>
+                <p><strong>Created:</strong> {new Date(todo.createdAt).toLocaleDateString()}</p>
+                <p><strong>Last Updated:</strong> {new Date(todo.updatedAt).toLocaleDateString()}</p>
+                {todo.color && <p><strong>Color:</strong> <span style={{ color: todo.color }}>■</span></p>}
+            </div>
+            <div className="todo-actions">
+                <Link to={`/todo/edit/${todo._id}`} className="btn">Edit Todo</Link>
+                <Link to="/todo" className="btn">Back to Todos</Link>
             </div>
         </section>
     )

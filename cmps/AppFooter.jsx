@@ -1,8 +1,8 @@
 const { useSelector } = ReactRedux
 
 export function AppFooter() {
-    const todos = useSelector((storeState) => storeState.todos)
-    const doneTodosPercent = useSelector(storeState => storeState.doneTodosPercent)
+    const todos = useSelector((storeState) => storeState.todos.todos)
+    const doneTodosPercent = useSelector(storeState => storeState.todos.doneTodosPercent)
     
     const formattedPercent = todos ? doneTodosPercent.toFixed(2) + '%' : null
 
