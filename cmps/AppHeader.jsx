@@ -1,17 +1,17 @@
-const { Link, NavLink } = ReactRouterDOM
-const { useNavigate } = ReactRouter
 import { UserMsg } from "./UserMsg.jsx"
 import { LoginSignup } from './LoginSignup.jsx'
 import { logout, addActivity } from '../store/actions/user.actions.js'
 
+const { Link, NavLink } = ReactRouterDOM
+const { useNavigate } = ReactRouter
 const { useSelector, useDispatch } = ReactRedux
 
 export function AppHeader() {
     const navigate = useNavigate()
     const dispatch = useDispatch()
-    const todos = useSelector((storeState) => storeState.todos.todos)
-    const user = useSelector(storeState => storeState.user.user)
-    const doneTodosPercent = useSelector(storeState => storeState.todos.doneTodosPercent)
+    const todos = useSelector((storeState) => storeState.todos)
+    const user = useSelector(storeState => storeState.user)
+    const doneTodosPercent = useSelector(storeState => storeState.doneTodosPercent)
     
     const formattedPercent = todos ? doneTodosPercent.toFixed(2) + '%' : null
     
@@ -62,7 +62,7 @@ export function AppHeader() {
                     <NavLink to="/" >Home</NavLink>
                     <NavLink to="/about" >About</NavLink>
                     <NavLink to="/todo" >Todos</NavLink>
-                    <NavLink to="/dashboard" >Dashboard</NavLink>
+                    <NavLink to="/user" >User</NavLink>
                 </nav>
                         {todos &&
                             <section className="todos-progress">

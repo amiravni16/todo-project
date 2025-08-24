@@ -12,9 +12,9 @@ const { useSelector, useDispatch } = ReactRedux
 
 export function TodoIndex() {
     // Use Redux store
-    const todos = useSelector((storeState) => storeState.todos.todos)
-    const isLoading = useSelector(storeState => storeState.todos.isLoading)
-    const filterBy = useSelector(storeState => storeState.todos.filterBy)
+    const todos = useSelector((storeState) => storeState.todos)
+    const isLoading = useSelector(storeState => storeState.isLoading)
+    const filterBy = useSelector(storeState => storeState.filterBy)
     const dispatch = useDispatch()
 
     // Local state for sorting and paging

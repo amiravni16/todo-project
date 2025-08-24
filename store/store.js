@@ -1,6 +1,4 @@
 const { createStore, compose, applyMiddleware } = Redux
-import { todoService } from '../services/todo.service.js'
-import { userService } from '../services/user.service.js'
 
 export const SET_IS_LOADING = 'SET_IS_LOADING'
 export const SET_TODOS = 'SET_TODOS'
@@ -19,7 +17,7 @@ const initialState = {
     filterBy: { txt: '', importance: 0, isDone: 'all' },
     doneTodosPercent: 0,
     maxPage: 0,
-    user: userService.getLoggedinUser(),
+    user: null,
     isLoading: false,
 }
 
@@ -78,21 +76,3 @@ export const store = createStore(
     appReducer, 
     composeEnhancers(applyMiddleware(thunkMiddleware))
 )
-
-// Initialize store with initial data
-function initStore() {
-    todoService.query()
-        .then(todos => {
-            store.dispatch({ type: SET_TODOS, todos })
-            return todoService.getDoneTodosPercent()
-        })
-        .then(doneTodosPercent => {
-            store.dispatch({ type: SET_DONE_TODOS_PERCENT, doneTodosPercent })
-        })
-        .catch(err => {
-            console.error('Failed to initialize store:', err)
-        })
-}
-
-// Initialize store when created
-initStore()
