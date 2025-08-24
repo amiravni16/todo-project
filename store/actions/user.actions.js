@@ -1,13 +1,15 @@
 import { userService } from '../../services/user.service.js'
+import { utilService } from '../../services/util.service.js'
+import { SET_USER, SET_USER_BALANCE } from '../store.js'
 
 // Action Creators (Pure Functions)
 export const setUser = (user) => ({
-    type: 'SET_USER',
+    type: SET_USER,
     user
 })
 
 export const setUserBalance = (balance) => ({
-    type: 'SET_USER_BALANCE',
+    type: SET_USER_BALANCE,
     balance
 })
 
@@ -17,6 +19,17 @@ export function login(credentials) {
         try {
             const user = await userService.login(credentials)
             dispatch(setUser(user))
+            
+            // Apply user's color preferences immediately after login
+            if (user.preferences) {
+                if (user.preferences.bgColor) {
+                    utilService.setCssVarVal('--clr1', user.preferences.bgColor)
+                }
+                if (user.preferences.color) {
+                    utilService.setCssVarVal('--clr2', user.preferences.color)
+                }
+            }
+            
             return user
         } catch (err) {
             console.error('Cannot login:', err)
@@ -30,6 +43,11 @@ export function signup(credentials) {
         try {
             const user = await userService.signup(credentials)
             dispatch(setUser(user))
+            
+            // Apply default color preferences for new users
+            utilService.setCssVarVal('--clr1', 'rgb(96, 107, 91)') // Default clr1
+            utilService.setCssVarVal('--clr2', 'rgb(120, 99, 110)') // Default clr2
+            
             return user
         } catch (err) {
             console.error('Cannot signup:', err)
@@ -43,6 +61,10 @@ export function logout() {
         try {
             await userService.logout()
             dispatch(setUser(null))
+            
+            // Reset colors to default when logging out
+            utilService.setCssVarVal('--clr1', 'rgb(96, 107, 91)') // Default clr1
+            utilService.setCssVarVal('--clr2', 'rgb(120, 99, 110)') // Default clr2
         } catch (err) {
             console.error('Cannot logout:', err)
             throw err

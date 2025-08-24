@@ -6,7 +6,8 @@ export const utilService = {
     saveToStorage,
     animateCSS,
     getRandomColor,
-    getFormattedTime
+    getFormattedTime,
+    setCssVarVal
 }
 
 function makeId(length = 6) {
@@ -77,4 +78,8 @@ function getFormattedTime(at) {
     else if (minutes < 60 * 2) return 'About an hour ago'
     else if (minutes < 60 * 24) return 'Several hours ago'
     return 'A day or more ago'
+}
+
+function setCssVarVal(prop, val) {
+    document.documentElement.style.setProperty(prop, val)
 }

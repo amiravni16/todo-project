@@ -1,5 +1,12 @@
-const { createStore, compose, applyMiddleware } = Redux
+const { createStore, compose, applyMiddleware, combineReducers } = Redux
 
+// Import the new store modules
+import { todoReducer } from './todoStore.js'
+import { userReducer } from './userStore.js'
+import { userService } from '../services/user.service.js'
+import { utilService } from '../services/util.service.js'
+
+// Export action types for actions to import
 export const SET_IS_LOADING = 'SET_IS_LOADING'
 export const SET_TODOS = 'SET_TODOS'
 export const SET_DONE_TODOS_PERCENT = 'SET_DONE_TODOS_PERCENT'
@@ -11,53 +18,6 @@ export const SET_FILTER_BY = 'SET_FILTER_BY'
 
 export const SET_USER = 'SET_USER'
 export const SET_USER_BALANCE = 'SET_USER_BALANCE'
-
-const initialState = {
-    todos: [],
-    filterBy: { txt: '', importance: 0, isDone: 'all' },
-    doneTodosPercent: 0,
-    maxPage: 0,
-    user: null,
-    isLoading: false,
-}
-
-export function appReducer(state = initialState, cmd) {
-
-    switch (cmd.type) {
-
-        case SET_TODOS:
-            return { ...state, todos: cmd.todos }
-        case ADD_TODO:
-            return { ...state, todos: [cmd.todo, ...state.todos] }
-        case REMOVE_TODO:
-            return { ...state, todos: state.todos.filter(todo => todo._id !== cmd.todoId) }
-        case UPDATE_TODO:
-            return { ...state, todos: state.todos.map(todo => todo._id === cmd.todo._id ? cmd.todo : todo) }
-        case SET_FILTER_BY:
-            return { ...state, filterBy: { ...state.filterBy, ...cmd.filterBy } }
-       
-        case SET_DONE_TODOS_PERCENT:
-            return { ...state, doneTodosPercent: cmd.doneTodosPercent }
-        case SET_MAX_PAGE:
-            return { ...state, maxPage: cmd.maxPage }
-
-        //USER
-        case SET_USER:
-            return { ...state, user: cmd.user }
-        case SET_USER_BALANCE:
-            if (!state.user) return state
-            return { ...state, user: { ...state.user, balance: cmd.balance } }
-
-        case SET_IS_LOADING:
-            return {
-                ...state, isLoading: cmd.isLoading
-            }
-
-        default:
-            return state
-    }
-
-}
 
 // Simple Thunk Middleware
 function thunkMiddleware(store) {
@@ -71,8 +31,26 @@ function thunkMiddleware(store) {
     }
 }
 
+// Combine the reducers
+const rootReducer = combineReducers({
+    todos: todoReducer,
+    user: userReducer
+})
+
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 export const store = createStore(
-    appReducer, 
+    rootReducer, 
     composeEnhancers(applyMiddleware(thunkMiddleware))
 )
+
+// Initialize user colors if there's a logged-in user
+// Check for logged-in user and apply their colors
+const loggedInUser = userService.getLoggedinUser()
+if (loggedInUser && loggedInUser.preferences) {
+    if (loggedInUser.preferences.bgColor) {
+        utilService.setCssVarVal('--clr1', loggedInUser.preferences.bgColor)
+    }
+    if (loggedInUser.preferences.color) {
+        utilService.setCssVarVal('--clr2', loggedInUser.preferences.color)
+    }
+}
