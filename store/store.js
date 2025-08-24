@@ -1,4 +1,4 @@
-const { createStore, compose } = Redux
+const { createStore, compose, applyMiddleware } = Redux
 import { todoService } from '../services/todo.service.js'
 import { userService } from '../services/user.service.js'
 
@@ -61,8 +61,23 @@ export function appReducer(state = initialState, cmd) {
 
 }
 
+// Simple Thunk Middleware
+function thunkMiddleware(store) {
+    return function(next) {
+        return function(action) {
+            if (typeof action === 'function') {
+                return action(store.dispatch, store.getState)
+            }
+            return next(action)
+        }
+    }
+}
+
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
-export const store = createStore(appReducer, composeEnhancers())
+export const store = createStore(
+    appReducer, 
+    composeEnhancers(applyMiddleware(thunkMiddleware))
+)
 
 // Initialize store with initial data
 function initStore() {

@@ -1,127 +1,121 @@
 import { todoService } from '../../services/todo.service.js'
-import {
-  SET_IS_LOADING,
-  ADD_TODO,
-  REMOVE_TODO,
-  SET_TODOS,
-  UPDATE_TODO,
-  store,
-  SET_DONE_TODOS_PERCENT,
-  SET_MAX_PAGE,
-  SET_FILTER_BY,
-} from '../store.js'
 import { addActivity, changeBalance } from './user.actions.js'
 
+// Action Creators (Pure Functions)
+export const setIsLoading = (isLoading) => ({
+    type: 'SET_IS_LOADING',
+    isLoading
+})
+
+export const setTodos = (todos) => ({
+    type: 'SET_TODOS',
+    todos
+})
+
+export const addTodo = (todo) => ({
+    type: 'ADD_TODO',
+    todo
+})
+
+export const removeTodoAction = (todoId) => ({
+    type: 'REMOVE_TODO',
+    todoId
+})
+
+export const updateTodo = (todo) => ({
+    type: 'UPDATE_TODO',
+    todo
+})
+
+export const setFilterBy = (filterBy) => ({
+    type: 'SET_FILTER_BY',
+    filterBy
+})
+
+export const setDoneTodosPercent = (doneTodosPercent) => ({
+    type: 'SET_DONE_TODOS_PERCENT',
+    doneTodosPercent
+})
+
+// Async Actions (Thunks)
 export function loadTodos(filterBy) {
-    store.dispatch({ type: SET_IS_LOADING, isLoading: true })
-    return todoService
-        .query(filterBy)
-        .then((todos) => {
-            store.dispatch({
-                type: SET_TODOS,
-                todos,
-            })
-            // Update done todos percentage
-            return todoService.getDoneTodosPercent()
-                .then(doneTodosPercent => {
-                    store.dispatch({
-                        type: SET_DONE_TODOS_PERCENT,
-                        doneTodosPercent,
-                    })
-                    return todos
-                })
-        })
-        .catch((err) => {
+    return async (dispatch, getState) => {
+        try {
+            dispatch(setIsLoading(true))
+            
+            const todos = await todoService.query(filterBy)
+            dispatch(setTodos(todos))
+            
+            const doneTodosPercent = await todoService.getDoneTodosPercent()
+            dispatch(setDoneTodosPercent(doneTodosPercent))
+            
+            return todos
+        } catch (err) {
             console.error('Cannot load todos:', err)
             throw err
-        })
-        .finally(() => {
-            store.dispatch({ type: SET_IS_LOADING, isLoading: false })
-        })
+        } finally {
+            dispatch(setIsLoading(false))
+        }
+    }
 }
 
 export function saveTodo(todo) {
-    const type = todo._id ? UPDATE_TODO : ADD_TODO
-    return todoService
-        .save(todo)
-        .then((savedTodo) => {
-            store.dispatch({
-                type,
-                todo: savedTodo,
-            })
+    return async (dispatch, getState) => {
+        try {
+            const savedTodo = await todoService.save(todo)
+            
+            if (todo._id) {
+                dispatch(updateTodo(savedTodo))
+            } else {
+                dispatch(addTodo(savedTodo))
+            }
+            
             // Update done todos percentage
-            return todoService.getDoneTodosPercent()
-                .then(doneTodosPercent => {
-                    store.dispatch({
-                        type: SET_DONE_TODOS_PERCENT,
-                        doneTodosPercent,
-                    })
-                    return savedTodo
-                })
-        })
-        .then((savedTodo) => {
+            const doneTodosPercent = await todoService.getDoneTodosPercent()
+            dispatch(setDoneTodosPercent(doneTodosPercent))
+            
             // Add activity for the user
-            const loggedInUser = store.getState().user
-            if (loggedInUser) {
+            const state = getState()
+            if (state.user) {
                 const actionName = todo._id ? 'Updated' : 'Added'
-                return addActivity(`${actionName} a Todo: ${todo.txt}`)
-                    .then(() => savedTodo)
+                await dispatch(addActivity(`${actionName} a Todo: ${todo.txt}`))
             }
-            return savedTodo
-        })
-        .then((savedTodo) => {
+            
             // Check if todo was marked as done and increase balance
-            const loggedInUser = store.getState().user
-            if (loggedInUser && savedTodo.isDone && !todo.isDone) {
+            if (state.user && savedTodo.isDone && !todo.isDone) {
                 // Todo was just marked as done, increase balance by 10
-                return changeBalance(10)
-                    .then(() => {
-                        // Add a special activity for balance increase
-                        return addActivity(`Completed todo and earned $10! Balance: $${loggedInUser.balance + 10}`)
-                            .then(() => savedTodo)
-                    })
+                const newBalance = await dispatch(changeBalance(10))
+                
+                // Add a special activity for balance increase
+                await dispatch(addActivity(`Completed todo and earned $10! Balance: $${newBalance}`))
             }
+            
             return savedTodo
-        })
-        .catch((err) => {
+        } catch (err) {
             console.error('Cannot save todo:', err)
             throw err
-        })
+        }
+    }
 }
 
 export function removeTodo(todoId) {
-    return todoService
-        .remove(todoId)
-        .then(() => {
-            store.dispatch({
-                type: REMOVE_TODO,
-                todoId,
-            })
+    return async (dispatch, getState) => {
+        try {
+            await todoService.remove(todoId)
+            dispatch(removeTodoAction(todoId))
+            
             // Update done todos percentage
-            return todoService.getDoneTodosPercent()
-                .then(doneTodosPercent => {
-                    store.dispatch({
-                        type: SET_DONE_TODOS_PERCENT,
-                        doneTodosPercent,
-                    })
-                })
-        })
-        .then(() => {
+            const doneTodosPercent = await todoService.getDoneTodosPercent()
+            dispatch(setDoneTodosPercent(doneTodosPercent))
+            
             // Add activity for the user
-            const loggedInUser = store.getState().user
-            if (loggedInUser) {
-                return addActivity(`Removed a Todo`)
+            const state = getState()
+            if (state.user) {
+                await dispatch(addActivity('Removed a Todo'))
             }
-        })
-        .catch((err) => {
+        } catch (err) {
             console.error('Cannot remove todo:', err)
             throw err
-        })
-}
-
-export function setFilterBy(filterBy) {
-    store.dispatch({
-        type: SET_FILTER_BY,
-        filterBy,
-    })
+        }
+    }
 }
