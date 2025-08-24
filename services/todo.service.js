@@ -14,6 +14,9 @@ export const todoService = {
     getFilterFromSearchParams,
     getImportanceStats,
     getDoneTodosPercent,
+    getSortedTodos,
+    getPaginatedTodos,
+    getTodosWithSortingAndPaging
 }
 // For Debug (easy access from console):
 window.cs = todoService
@@ -146,6 +149,63 @@ function _getTodoCountByImportanceMap(todos) {
         return map
     }, { low: 0, normal: 0, urgent: 0 })
     return todoCountByImportanceMap
+}
+
+// Sorting functions
+function getSortedTodos(todos, sortBy = {}) {
+    const { field = 'createdAt', direction = 'desc' } = sortBy
+    
+    return [...todos].sort((a, b) => {
+        let aVal = a[field]
+        let bVal = b[field]
+        
+        // Handle string comparison
+        if (typeof aVal === 'string') {
+            aVal = aVal.toLowerCase()
+            bVal = bVal.toLowerCase()
+        }
+        
+        // Handle date comparison
+        if (field === 'createdAt' || field === 'updatedAt') {
+            aVal = new Date(aVal).getTime()
+            bVal = new Date(bVal).getTime()
+        }
+        
+        if (direction === 'asc') {
+            return aVal > bVal ? 1 : -1
+        } else {
+            return aVal < bVal ? 1 : -1
+        }
+    })
+}
+
+// Paging functions
+function getPaginatedTodos(todos, page = 1, pageSize = 10) {
+    const startIndex = (page - 1) * pageSize
+    const endIndex = startIndex + pageSize
+    
+    return {
+        todos: todos.slice(startIndex, endIndex),
+        pagination: {
+            currentPage: page,
+            pageSize: pageSize,
+            totalItems: todos.length,
+            totalPages: Math.ceil(todos.length / pageSize),
+            hasNextPage: endIndex < todos.length,
+            hasPrevPage: page > 1
+        }
+    }
+}
+
+// Combined function for sorting and paging
+function getTodosWithSortingAndPaging(todos, options = {}) {
+    const { sortBy = {}, page = 1, pageSize = 10 } = options
+    
+    // First sort the todos
+    const sortedTodos = getSortedTodos(todos, sortBy)
+    
+    // Then apply paging
+    return getPaginatedTodos(sortedTodos, page, pageSize)
 }
 
 

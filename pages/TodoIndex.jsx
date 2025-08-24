@@ -1,6 +1,7 @@
 import { TodoFilter } from "../cmps/TodoFilter.jsx"
 import { TodoList } from "../cmps/TodoList.jsx"
 import { DataTable } from "../cmps/data-table/DataTable.jsx"
+import { TodoSorting } from "../cmps/TodoSorting.jsx"
 import { loadTodos, removeTodo, saveTodo, setFilterBy } from '../store/actions/todo.actions.js'
 import { todoService } from "../services/todo.service.js"
 import { showErrorMsg, showSuccessMsg } from "../services/event-bus.service.js"
@@ -14,6 +15,11 @@ export function TodoIndex() {
     const todos = useSelector((storeState) => storeState.todos)
     const isLoading = useSelector(storeState => storeState.isLoading)
     const filterBy = useSelector(storeState => storeState.filterBy)
+
+    // Local state for sorting and paging
+    const [sortBy, setSortBy] = useState({ field: 'createdAt', direction: 'desc' })
+    const [currentPage, setCurrentPage] = useState(1)
+    const [pageSize, setPageSize] = useState(10)
 
     // Special hook for accessing search-params:
     const [searchParams, setSearchParams] = useSearchParams()
@@ -34,6 +40,11 @@ export function TodoIndex() {
     useEffect(() => {
         // Load todos when filter changes
         loadTodos(filterBy)
+    }, [filterBy])
+
+    // Reset to first page when filter changes
+    useEffect(() => {
+        setCurrentPage(1)
     }, [filterBy])
 
     function onRemoveTodo(todoId) {
@@ -60,21 +71,49 @@ export function TodoIndex() {
         setFilterBy(newFilterBy)
     }
 
+    function onSortChange(newSortBy) {
+        setSortBy(newSortBy)
+        setCurrentPage(1) // Reset to first page when sorting changes
+    }
+
+    function onPageChange(newPage) {
+        setCurrentPage(newPage)
+    }
+
+    // Apply sorting and paging to todos
+    const sortedAndPaginatedTodos = todos ? todoService.getTodosWithSortingAndPaging(todos, {
+        sortBy,
+        page: currentPage,
+        pageSize
+    }) : { todos: [], pagination: { currentPage: 1, totalPages: 1, totalItems: 0 } }
+
+    const { todos: displayTodos, pagination } = sortedAndPaginatedTodos
+
     return (
         <section className="todo-index">
             <TodoFilter filterBy={filterBy} onSetFilterBy={onSetFilterBy} />
+            <TodoSorting 
+                onSortChange={onSortChange}
+                onPageChange={onPageChange}
+                onPageSizeChange={setPageSize}
+                currentSort={sortBy}
+                currentPage={pagination.currentPage}
+                totalPages={pagination.totalPages}
+                totalItems={pagination.totalItems}
+                pageSize={pageSize}
+            />
             <div>
                 <Link to="/todo/edit" className="btn" >Add Todo</Link>
             </div>
             <h2>Todos List</h2>
             {isLoading
                 ? <h1 className="loader">Loading...</h1>
-                : <TodoList todos={todos} onRemoveTodo={onRemoveTodo} onToggleTodo={onToggleTodo} />
+                : <TodoList todos={displayTodos} onRemoveTodo={onRemoveTodo} onToggleTodo={onToggleTodo} />
             }
             <hr />
             <h2>Todos Table</h2>
             <div style={{ width: '60%', margin: 'auto' }}>
-                <DataTable todos={todos} onRemoveTodo={onRemoveTodo} />
+                <DataTable todos={displayTodos} onRemoveTodo={onRemoveTodo} />
             </div>
         </section>
     )

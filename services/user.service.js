@@ -132,8 +132,6 @@ function getDefaultPreferences() {
     return { color: '#eeeeee', bgColor: "#191919", fullname: '' }
 }
 
-
-
 // signup({username: 'muki', password: 'muki1', fullname: 'Muki Ja'})
 // login({username: 'muki', password: 'muki1'})
 
