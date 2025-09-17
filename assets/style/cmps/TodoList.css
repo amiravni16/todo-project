@@ -1,25 +1,48 @@
 .todo-list {
-    padding: 15px 0 0;
+    padding: var(--space-lg) 0 0;
     list-style: none;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 15px;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--space-lg);
+    margin: 0;
 }
 
 .todo-list li {
     display: flex;
     flex-direction: column;
-    justify-content: space-around;
-    align-items: center;
-    background: white;
-    border-radius: 15px;
-    padding: 20px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-    border: 1px solid #e9ecef;
+    justify-content: space-between;
+    align-items: stretch;
+    background: var(--bg-primary);
+    border-radius: var(--radius-lg);
+    padding: var(--space-xl);
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+    border: 1px solid var(--bg-tertiary);
+    position: relative;
+    overflow: hidden;
+}
+
+.todo-list li::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
 }
 
 .todo-list li:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--primary);
+}
+
+.todo-list li.done {
+    opacity: 0.8;
+    background: var(--bg-secondary);
+}
+
+.todo-list li.done::before {
+    background: linear-gradient(135deg, var(--success), var(--success-light));
 }

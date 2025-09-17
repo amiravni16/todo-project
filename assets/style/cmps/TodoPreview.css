@@ -1,16 +1,112 @@
 .todo-preview {
-    text-align: center;
-    padding: 0.3em;
+    text-align: left;
+    padding: 0;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: stretch;
+    height: 100%;
 }
 
 .todo-preview h4 {
     text-transform: capitalize;
-    color: black;
+    color: var(--text-primary);
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0 0 var(--space-md) 0;
+    line-height: 1.4;
+    word-break: break-word;
+}
+
+.todo-preview h4.done {
+    text-decoration: line-through;
+    opacity: 0.6;
+    color: var(--text-muted);
+}
+
+.todo-preview .todo-actions {
+    display: flex;
+    gap: var(--space-sm);
+    margin-top: auto;
+    padding-top: var(--space-md);
+    border-top: 1px solid var(--bg-tertiary);
+}
+
+.todo-preview .todo-actions button {
+    flex: 1;
+    padding: var(--space-sm) var(--space-md);
+    border-radius: var(--radius);
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: var(--transition);
+    border: 2px solid transparent;
+}
+
+.todo-preview .todo-actions .toggle-btn {
+    background: var(--success);
+    color: var(--bg-primary);
+}
+
+.todo-preview .todo-actions .toggle-btn:hover {
+    background: var(--success-light);
+    transform: translateY(-1px);
+}
+
+.todo-preview .todo-actions .delete-btn {
+    background: var(--error);
+    color: var(--bg-primary);
+}
+
+.todo-preview .todo-actions .delete-btn:hover {
+    background: var(--error-light);
+    transform: translateY(-1px);
+}
+
+.todo-preview .todo-actions .edit-btn {
+    background: var(--info);
+    color: var(--bg-primary);
+}
+
+.todo-preview .todo-actions .edit-btn:hover {
+    background: var(--info-light);
+    transform: translateY(-1px);
+}
+
+.todo-preview .todo-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-md);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.todo-preview .todo-importance {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: var(--space-xs) var(--space-sm);
+    background: var(--bg-tertiary);
+    border-radius: var(--radius);
+    font-weight: 500;
+}
+
+.todo-preview .todo-importance.high {
+    background: var(--error);
+    color: var(--bg-primary);
+}
+
+.todo-preview .todo-importance.medium {
+    background: var(--warning);
+    color: var(--bg-primary);
+}
+
+.todo-preview .todo-importance.low {
+    background: var(--success);
+    color: var(--bg-primary);
 }
 
 .todo-preview img {
     max-width: 100px;
+    border-radius: var(--radius);
+    margin: var(--space-sm) 0;
 }
